@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
-    <!-- FullCalendar CSS -->
+    <!-- FullCalendar CSS para el calendario -->
     <link href="https://jsdelivr.net" rel="stylesheet">
-    <!-- Tailwind CSS -->
-    <script src="https://jsdelivr.net"></script>
+    <!-- Tailwind CSS v3 Play CDN: Máxima compatibilidad con navegadores antiguos y corporativos -->
+    <script src="https://tailwindcss.com"></script>
     <style>
         /* Estilos personalizados para clonar la interfaz de la foto */
         .brand-red { background-color: #c92128; }
         .brand-red-text { color: #c92128; }
         .border-brand-red { border-left: 6px solid #c92128; }
         
-        /* Forzar que los eventos del calendario sean rojos tal como pediste */
+        /* Forzar que los eventos del calendario sean rojos */
         .fc-event {
             background-color: #c92128 !important; 
             border-color: #b01c22 !important;
@@ -38,7 +38,7 @@
         <header class="text-center pt-6 pb-4 border-b border-gray-100 px-4">
             <h1 class="text-2xl font-bold brand-red-text tracking-wide">CCOO Sanidad</h1>
             <p class="text-gray-500 text-sm mt-1 font-medium">Gestión de Vehículos de la Flota en Tiempo Real</p>
-            <div class="w-24 h-0.5 brand-day brand-red mx-auto mt-3"></div>
+            <div class="w-24 h-0.5 brand-red mx-auto mt-3"></div>
         </header>
 
         <!-- FORMULARIO PRINCIPAL -->
@@ -84,10 +84,10 @@
 
             <div id="statusMessage" class="text-xs text-center font-medium text-blue-600 hidden"></div>
 
-            <!-- SECCIÓN DE CALENDARIO VISUAL ADICIONADA -->
+            <!-- SECCIÓN DE CALENDARIO VISUAL -->
             <div class="pt-4 border-t border-gray-100">
                 <h2 class="text-lg font-bold text-gray-800 mb-3">Calendario Mensual</h2>
-                <div class="bg-white border border-gray-100 p-2 rounded-xl shadow-xs">
+                <div class="bg-white border border-gray-100 p-2 rounded-xl shadow-sm">
                     <div id="calendar"></div>
                 </div>
             </div>
@@ -96,7 +96,6 @@
             <div class="pt-4 border-t border-gray-100">
                 <h2 class="text-lg font-bold text-gray-800 mb-3">Agenda de Reservas Activas</h2>
                 <div id="listaReservas" class="space-y-3">
-                    <!-- Las reservas se renderizan aquí dinámicamente -->
                     <p class="text-sm text-gray-400 text-center py-2">Consultando reservas activas...</p>
                 </div>
             </div>
@@ -173,10 +172,9 @@
             }
 
             listaContainer.innerHTML = "";
-            // Mostramos las últimas reservas ordenadas por fecha reciente
             reservasLocales.forEach((res, index) => {
                 const item = document.createElement('div');
-                item.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-xs border-brand-red";
+                item.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm border-brand-red";
                 item.innerHTML = `
                     <div>
                         <h4 class="font-bold text-gray-800 text-sm">${res.vehiculo}</h4>
@@ -202,4 +200,8 @@
             const btn = document.getElementById('btnReservar');
 
             // --- VALIDACIÓN SOLICITADA ---
-            // Verifica que no coincida Vehículo, Día y Franja
+            const conflicto = reservasLocales.some(res => {
+                return res.vehiculo === vehiculo && 
+                       res.fecha === fecha && 
+                       res.franja === franja;
+            });
