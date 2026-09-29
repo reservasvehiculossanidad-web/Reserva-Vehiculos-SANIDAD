@@ -43,7 +43,7 @@
         .weekday { font-size: 11px; font-weight: 600; color: #9ca3af; padding-bottom: 4px; }
         .day { font-size: 12px; padding: 8px 0; border-radius: 6px; color: #374151; position: relative; }
         
-        /* Días señalados en rojo cuando hay reservas */
+        /* Pintado en rojo solicitado */
         .day.has-reserve { background-color: #c92128 !important; color: white !important; font-weight: bold; }
         
         /* LISTA DE RESERVAS ACTIVAS */
@@ -52,7 +52,8 @@
         .reserve-info h4 { font-size: 14px; font-weight: 700; color: #1f2937; }
         .reserve-info p { font-size: 12px; color: #6b7280; margin-top: 2px; }
         .reserve-info span { font-size: 11px; color: #9ca3af; display: block; margin-top: 2px; }
-        .btn-cancel { background-color: #fef2f2; color: #ef4444; border: none; padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; }
+        .btn-cancel { background-color: #fef2f2; color: #ef4444; border: none; padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .btn-cancel:hover { background-color: #fee2e2; }
         
         .status-msg { font-size: 13px; color: #4b5563; text-align: center; padding: 8px 0; font-weight: 500; }
         .empty-text { font-size: 13px; color: #9ca3af; text-align: center; padding: 10px 0; }
@@ -80,7 +81,7 @@
 
                 <div class="form-group">
                     <label>Nombre del Solicitante / Sección</label>
-                    <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
+                    <input type="text" id="usuario" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
                 </div>
 
                 <div class="form-group">
@@ -90,7 +91,7 @@
 
                 <div class="form-group">
                     <label>Turno Horario</label>
-                    <select id="franja" required>
+                    <select id="turno" required>
                         <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
                         <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
                         <option value="Día Completo">Día Completo</option>
@@ -100,7 +101,7 @@
                 <button type="submit" id="btnReservar" class="btn-submit">Confirmar Reserva</button>
             </form>
 
-            <div id="statusMessage" class="status-msg">Aplicación lista</div>
+            <div id="statusMessage" class="status-msg">Sincronizando con la nube...</div>
 
             <!-- Bloque del Calendario Visual -->
             <div class="section-title">Calendario Mensual</div>
@@ -120,34 +121,37 @@
     </div>
 
     <script>
-        // Nueva URL fija vinculada con éxito a tu Google Sheets
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwaGvv42C11XB1ncJNyvz12JJ_wp4dvvJ-DdzMDTxAMULq9D78razvBtJ_bcvfm3Q5H3w/exec";
+        // Tu nueva URL de Google Sheets con estructura JSON integrada de forma fija
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxstaZWavn5fsxfG0Eg63CoLqDRds93JbJsX_gL4ddh0jOoCtQgeiV25ecFe8vkjlkc8w/exec";
         
-        let reservas = JSON.parse(localStorage.getItem('ccoo_flota_local')) || [];
+        let reservas = [];
         let currentDate = new Date();
 
         document.addEventListener('DOMContentLoaded', () => {
             renderCalendario();
             renderLista();
-            
-            // Sincronización pasiva inicial
+            cargarReservasDesdeGoogle();
+        });
+
+        // Lectura adaptada al formato JSON de cabeceras mapeadas
+        function cargarReservasDesdeGoogle() {
+            document.getElementById('statusMessage').innerText = "Sincronizando con la nube... 🔄";
             fetch(SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
-                    if (data && Array.isArray(data) && data.length > 0) {
+                    if (data && Array.isArray(data)) {
                         reservas = data;
-                        localStorage.setItem('ccoo_flota_local', JSON.stringify(reservas));
                         renderCalendario();
                         renderLista();
-                        document.getElementById('statusMessage').innerText = "✓ Sincronizado con Sheets";
+                        document.getElementById('statusMessage').innerText = "";
                     }
                 })
                 .catch(e => {
-                    document.getElementById('statusMessage').innerText = "✓ Conectado (Modo Protegido Local)";
+                    document.getElementById('statusMessage').innerText = "Consulta local de seguridad activa";
                 });
-        });
+        }
 
-        // Dibujar calendario nativo
+        // Renderizado del calendario integrado nativo
         function renderCalendario() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
@@ -183,10 +187,7 @@
                 const mStr = String(month + 1).padStart(2, '0');
                 const fechaCelda = `${year}-${mStr}-${dStr}`;
 
-                const tieneReserva = reservas.some(r => r.fecha === fechaCelda);
-                if (tieneReserva) {
-                    div.className = 'day has-reserve';
-                }
-                grid.appendChild(div);
-            }
-        }
+                // Comprobar si el día tiene reservas
+                const tieneReserva = reservas.some(r => {
+                    if (!r.fecha) return false;
+                    const fechaClean = r.fecha.toString().substring(0, 10);
