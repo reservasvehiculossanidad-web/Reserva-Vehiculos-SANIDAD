@@ -3,209 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Reservas de Vehículos</title>
+    <title>CCOO Sanidad - Gestión de Vehículos</title>
     <!-- FullCalendar CSS -->
     <link href="https://jsdelivr.net" rel="stylesheet">
-    <!-- Tailwind CSS para diseño rápido y limpio -->
+    <!-- Tailwind CSS -->
     <script src="https://jsdelivr.net"></script>
     <style>
-        /* Forzar que los eventos del calendario sean rojos tal como solicitaste */
+        /* Estilos personalizados para clonar la interfaz de la foto */
+        .brand-red { background-color: #c92128; }
+        .brand-red-text { color: #c92128; }
+        .border-brand-red { border-left: 6px solid #c92128; }
+        
+        /* Forzar que los eventos del calendario sean rojos tal como pediste */
         .fc-event {
-            background-color: #ef4444 !important; /* Rojo intenso */
-            border-color: #dc2626 !important;
+            background-color: #c92128 !important; 
+            border-color: #b01c22 !important;
             color: white !important;
-            font-weight: bold;
-            padding: 2px 4px;
+            font-weight: 500;
+            padding: 3px 5px;
+            font-size: 0.85em;
+            border-radius: 4px;
+        }
+        .fc-header-toolbar {
+            margin-bottom: 1rem !important;
+            font-size: 0.9rem;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans">
+<body class="bg-gray-50 min-h-screen font-sans antialiased text-gray-800">
 
-    <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Cabecera -->
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-gray-800">Reserva de Vehículos</h1>
-            <p class="text-gray-600 mt-2">Conectado en tiempo real con Google Sheets</p>
-            <div class="inline-block mt-3 px-4 py-1.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full uppercase tracking-wider">
-                ● Conexión Activa
-            </div>
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg pb-12">
+        
+        <!-- ENCABEZADO EXACTO DE LA FOTO -->
+        <header class="text-center pt-6 pb-4 border-b border-gray-100 px-4">
+            <h1 class="text-2xl font-bold brand-red-text tracking-wide">CCOO Sanidad</h1>
+            <p class="text-gray-500 text-sm mt-1 font-medium">Gestión de Vehículos de la Flota en Tiempo Real</p>
+            <div class="w-24 h-0.5 brand-day brand-red mx-auto mt-3"></div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Formulario de Reserva -->
-            <div class="bg-white p-6 rounded-xl shadow-md h-fit">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">Nueva Reserva</h2>
+        <!-- FORMULARIO PRINCIPAL -->
+        <main class="p-5 space-y-5">
+            <form id="formReserva" class="space-y-4">
                 
-                <form id="formReserva" class="space-y-4">
-                    <!-- Selección de Vehículo -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Vehículo</label>
-                        <select id="vehiculo" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none" required>
-                            <option value="">-- Elige un vehículo --</option>
-                            <option value="Toyota Corolla">Toyota Corolla</option>
-                            <option value="Hyundai Tucson">Hyundai Tucson</option>
-                            <option value="Tesla Model 3">Tesla Model 3</option>
-                            <option value="Furgoneta Ford">Furgoneta Ford</option>
-                        </select>
-                    </div>
+                <!-- Seleccionar Vehículo -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Seleccionar Vehículo</label>
+                    <select id="vehiculo" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition-all text-gray-700" required>
+                        <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
+                        <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (7 Plazas)</option>
+                    </select>
+                </div>
 
-                    <!-- Selección de Fecha -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Reserva</label>
-                        <input type="date" id="fecha" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none" required>
-                    </div>
+                <!-- Nombre del Solicitante / Sección -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Solicitante / Sección</label>
+                    <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition-all text-gray-700" required>
+                </div>
 
-                    <!-- Franja Horaria -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Franja Horaria</label>
-                        <select id="franja" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none" required>
-                            <option value="">-- Selecciona el horario --</option>
-                            <option value="Mañana (08:00 - 14:00)">Mañana (08:00 - 14:00)</option>
-                            <option value="Tarde (14:00 - 20:00)">Tarde (14:00 - 20:00)</option>
-                            <option value="Día Completo (08:00 - 20:00)">Día Completo (08:00 - 20:00)</option>
-                        </select>
-                    </div>
+                <!-- Fecha -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha</label>
+                    <input type="date" id="fecha" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition-all text-gray-700" required>
+                </div>
 
-                    <!-- Botón de Envío -->
-                    <button type="submit" id="btnReservar" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg transition duration-200 shadow-sm cursor-pointer">
-                        Confirmar Reserva
-                    </button>
-                </form>
+                <!-- Turno Horario -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Turno Horario</label>
+                    <select id="franja" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition-all text-gray-700" required>
+                        <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
+                        <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
+                        <option value="Día Completo">Día Completo</option>
+                    </select>
+                </div>
 
-                <!-- Estado de la Red / Avisos -->
-                <div id="statusMessage" class="mt-4 text-sm text-center hidden"></div>
+                <!-- Botón de Confirmar -->
+                <button type="submit" id="btnReservar" class="w-full brand-red text-white font-bold py-3.5 px-4 rounded-xl transition duration-200 active:scale-[0.99] shadow-md cursor-pointer text-base">
+                    Confirmar Reserva
+                </button>
+            </form>
+
+            <div id="statusMessage" class="text-xs text-center font-medium text-blue-600 hidden"></div>
+
+            <!-- SECCIÓN DE CALENDARIO VISUAL ADICIONADA -->
+            <div class="pt-4 border-t border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-3">Calendario Mensual</h2>
+                <div class="bg-white border border-gray-100 p-2 rounded-xl shadow-xs">
+                    <div id="calendar"></div>
+                </div>
             </div>
 
-            <!-- Calendario -->
-            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
-                <div id="calendar"></div>
+            <!-- AGENDA DE RESERVAS ACTIVAS -->
+            <div class="pt-4 border-t border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-3">Agenda de Reservas Activas</h2>
+                <div id="listaReservas" class="space-y-3">
+                    <!-- Las reservas se renderizan aquí dinámicamente -->
+                    <p class="text-sm text-gray-400 text-center py-2">Consultando reservas activas...</p>
+                </div>
             </div>
-        </div>
+
+        </main>
     </div>
 
     <!-- FullCalendar JavaScript -->
     <script src="https://jsdelivr.net"></script>
     
     <script>
-        // Tu URL de Google Apps Script vinculada de forma fija
+        // URL de tu Google Apps Script integrada
         const SCRIPT_URL = "https://google.com";
         
         let calendar;
         let reservasLocales = [];
 
-        // Inicializar el calendario cuando la página cargue
         document.addEventListener('DOMContentLoaded', function() {
             const calendarEl = document.getElementById('calendar');
             
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 locale: 'es',
-                firstDay: 1, // Lunes como primer día
+                firstDay: 1,
+                height: 'auto',
                 headerToolbar: {
-                    left: 'prev,next today',
+                    left: 'prev,next',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek'
+                    right: 'today'
                 },
-                buttonText: {
-                    today: 'Hoy',
-                    month: 'Mes',
-                    week: 'Semana'
-                },
+                buttonText: { today: 'Hoy' },
                 events: []
             });
             
             calendar.render();
-            
-            // Cargar datos iniciales desde Google Sheets
             cargarReservas();
         });
 
-        // Función para leer reservas desde Google Sheets (GET)
+        // Cargar datos (GET)
         async function cargarReservas() {
-            mostrarEstado("Cargando reservas desde la nube...", "info");
+            mostrarEstado("Sincronizando con Google Sheets...");
             try {
                 const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error("Error en la respuesta de red.");
+                if (!response.ok) throw new Error("Error de red");
                 
                 const datos = await response.json();
-                reservasLocales = datos; // Guardar copia en memoria para validaciones
+                reservasLocales = datos;
                 
-                // Mapear los datos de Sheets al formato que exige FullCalendar
-                const eventosCalendario = datos.map(reserva => {
-                    return {
-                        title: `${reserva.vehiculo} (${reserva.franja})`,
-                        start: reserva.fecha,
-                        allDay: true
-                    };
-                });
-                
-                // Limpiar y refrescar eventos en el calendario
+                // 1. Actualizar Calendario Visual en Rojo
+                const eventos = datos.map(res => ({
+                    title: `${res.vehiculo.split(' ')[0]} - ${res.franja.split(' ')[0]}`,
+                    start: res.fecha,
+                    allDay: true
+                }));
                 calendar.removeAllEvents();
-                calendar.addEventSource(eventosCalendario);
-                mostrarEstado("Calendario actualizado.", "success");
-                setTimeout(() => ocultarEstado(), 3000);
+                calendar.addEventSource(eventos);
+                
+                // 2. Actualizar Lista Visual de abajo (Estilo de la foto)
+                renderizarLista();
+                ocultarEstado();
 
             } catch (error) {
-                console.error("Error al cargar:", error);
-                mostrarEstado("No se pudieron sincronizar las reservas. Usando caché offline.", "error");
+                console.error(error);
+                mostrarEstado("Error al conectar. Verifica los permisos en Google Sheets.");
             }
         }
 
-        // Manejador del Formulario (Validación + Envío POST)
+        // Renderizar la lista inferior con el botón Cancelar tal como en la foto
+        function renderizarLista() {
+            const listaContainer = document.getElementById('listaReservas');
+            if (reservasLocales.length === 0) {
+                listaContainer.innerHTML = `<p class="text-sm text-gray-400 text-center py-2">No hay reservas registradas.</p>`;
+                return;
+            }
+
+            listaContainer.innerHTML = "";
+            // Mostramos las últimas reservas ordenadas por fecha reciente
+            reservasLocales.forEach((res, index) => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-xs border-brand-red";
+                item.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">${res.vehiculo}</h4>
+                        <p class="text-xs text-gray-500 font-medium mt-0.5">Por: ${res.solicitante || 'No especificado'}</p>
+                        <p class="text-[11px] text-gray-400 mt-0.5">${res.fecha} | ${res.franja}</p>
+                    </div>
+                    <button onclick="solicitarCancelacion(${index})" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer">
+                        Cancelar
+                    </button>
+                `;
+                listaContainer.appendChild(item);
+            });
+        }
+
+        // Formulario (Validación estricta de duplicados + Envío POST)
         document.getElementById('formReserva').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const vehiculo = document.getElementById('vehiculo').value;
+            const solicitante = document.getElementById('solicitante').value;
             const fecha = document.getElementById('fecha').value;
             const franja = document.getElementById('franja').value;
             const btn = document.getElementById('btnReservar');
 
-            // --- VALIDACIÓN ESTRICTA EN TIEMPO REAL ---
-            // Comprobamos si ya existe el mismo vehículo, el mismo día en la misma franja
-            const existeDuplicado = reservasLocales.some(reserva => {
-                return reserva.vehiculo === vehiculo && 
-                       reserva.fecha === fecha && 
-                       reserva.franja === franja;
-            });
-
-            if (existeDuplicado) {
-                alert(`⚠️ ¡Error de conflicto!\nEl vehículo "${vehiculo}" ya está reservado para el día ${fecha} en la franja de la "${franja}".\nPor favor, elige otra combinación.`);
-                return;
-            }
-
-            // Deshabilitar botón durante el proceso de guardado
-            btn.disabled = true;
-            btn.innerText = "Guardando en Sheets...";
-            mostrarEstado("Enviando reserva a Google Sheets...", "info");
-
-            try {
-                // Enviar datos por POST usando URLSearchParams para evitar problemas de CORS en Apps Script
-                const formData = new URLSearchParams();
-                formData.append('vehiculo', vehiculo);
-                formData.append('fecha', fecha);
-                formData.append('franja', franja);
-
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                });
-
-                const resultado = await response.json();
-
-                if (resultado.status === 'success') {
-                    // Limpiar formulario si el registro fue exitoso
-                    document.getElementById('formReserva').reset();
-                    alert("🎉 ¡Reserva confirmada con éxito y registrada en Google Sheets!");
-                    // Recargar datos para pintar el nuevo evento en rojo
-                    await cargarReservas();
-                } else {
-                    alert("Error del servidor: " + resultado.message);
-                    mostrarEstado("Error: " + resultado.message, "error");
-                }
-
-            } catch (error) {
-                console.error("Error al enviar:", error);
-                alert("Hubo un error de conexión con Google Sheets. Inténtalo de nuevo.");
+            // --- VALIDACIÓN SOLICITADA ---
+            // Verifica que no coincida Vehículo, Día y Franja
