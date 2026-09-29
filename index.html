@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas de Vehículos</title>
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <!-- Tailwind CSS para diseño rápido -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Personalización para que los eventos del calendario sean rojos */
+        .fc-event {
+            background-color: #ef4444 !important; /* Rojo Tailwind */
+            border-color: #b91c1c !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-800">Reserva de Vehículos</h1>
+            <p class="text-gray-600">Calendario de disponibilidad y gestión de franjas horarias</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Formulario de Reserva -->
+            <div class="bg-white p-6 rounded-lg shadow-md h-fit">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Nueva Reserva</h2>
+                <form id="reservationForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Seleccionar Vehículo</label>
+                        <select id="vehicle" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2 border" required>
+                            <option value="Toyota Corolla">Toyota Corolla</option>
+                            <option value="Ford Ranger">Ford Ranger</option>
+                            <option value="Tesla Model 3">Tesla Model 3</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Fecha</label>
+                        <input type="date" id="date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2 border" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Franja Horaria</label>
+                        <select id="timeSlot" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2 border" required>
+                            <option value="08:00-12:00">Mañana (08:00 - 12:00)</option>
+                            <option value="12:00-16:00">Mediodía (12:00 - 16:00)</option>
+                            <option value="16:00-20:00">Tarde (16:00 - 20:00)</option>
+                        </select>
+                    </div>
+
+                    <div id="errorMessage" class="text-red-600 text-sm font-medium hidden">
+                        ⚠️ Este vehículo ya está reservado en esa fecha y franja horaria.
+                    </div>
+
+                    <div id="successMessage" class="text-green-600 text-sm font-medium hidden">
+                        ¡Reserva realizada con éxito!
+                    </div>
+
+                    <button type="submit" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition font-medium">
+                        Confirmar Reserva
+                    </button>
+                </form>
+            </div>
+
+            <!-- Calendario -->
+            <div class="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales/es.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const form = document.getElementById('reservationForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+
+            // Obtener reservas previas de LocalStorage o inicializar vacío
+            let reservations = JSON.parse(localStorage.getItem('vehicle_reservations')) || [];
+
+            // Mapeo de franjas horarias a horas reales para el calendario
+            const timeSlotMapping = {
+                "08:00-12:00": { start: "08:00:00", end: "12:00:00" },
+                "12:00-16:00": { start: "12:00:00", end: "16:00:00" },
+                "16:00-20:00": { start: "16:00:00", end: "20:00:00" }
+            };
+
+            // Formatear reservas almacenadas para FullCalendar
+            function getCalendarEvents() {
+                return reservations.map(res => {
+                    const times = timeSlotMapping[res.timeSlot];
+                    return {
+                        title: `${res.vehicle} (${res.timeSlot})`,
+                        start: `${res.date}T${times.start}`,
+                        end: `${res.date}T${times.end}`,
+                        allDay: false
+                    };
+                });
+            }
+
+            // Inicializar FullCalendar
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                events: getCalendarEvents()
+            });
+            calendar.render();
+
+            // Manejar envío del formulario
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const vehicle = document.getElementById('vehicle').value;
+                const date = document.getElementById('date').value;
+                const timeSlot = document.getElementById('timeSlot').value;
+
+                // Ocultar mensajes previos
+                errorMessage.classList.add('hidden');
+                successMessage.classList.add('hidden');
+
+                // VALIDACIÓN CRÍTICA: Mismo vehículo, mismo día, misma franja horaria
+                const isConflict = reservations.some(res => 
+                    res.vehicle === vehicle && 
+                    res.date === date && 
+                    res.timeSlot === timeSlot
+                );
+
+                if (isConflict) {
+                    errorMessage.classList.remove('hidden');
+                    return; // Bloquea el guardado
+                }
+
+                // Si no hay conflicto, guardar la reserva
+                const newReservation = { vehicle, date, timeSlot };
+                reservations.push(newReservation);
+                localStorage.setItem('vehicle_reservations', JSON.stringify(reservations));
+
+                // Actualizar calendario
+                calendar.addEvent({
+                    title: `${vehicle} (${timeSlot})`,
+                    start: `${date}T${timeSlotMapping[timeSlot].start}`,
+                    end: `${date}T${timeSlotMapping[timeSlot].end}`,
+                    allDay: false
+                });
+
+                // Mostrar éxito y limpiar formulario
+                successMessage.classList.remove('hidden');
+                form.reset();
+            });
+        });
+    </script>
+</body>
+</html>
