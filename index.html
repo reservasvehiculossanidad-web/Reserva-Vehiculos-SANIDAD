@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
     <style>
-        /* ESTILOS INTERNOS INTEGRADOS - AISLAMIENTO TOTAL */
+        /* ESTILOS INTERNOS INTEGRADOS DE TU CÓDIGO BASE */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f3f4f6; color: #333; padding: 10px; display: flex; justify-content: center; }
         
         .container { max-width: 420px; width: 100%; background: #ffffff; min-height: 100vh; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding-bottom: 40px; border-radius: 8px; overflow: hidden; }
         
-        /* Encabezado */
         header { text-align: center; padding: 24px 16px 16px 16px; border-b: 1px solid #f3f4f6; }
         header h1 { color: #c92128; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
         header p { color: #6b7280; font-size: 14px; margin-top: 4px; font-weight: 500; }
@@ -36,7 +35,7 @@
         
         .section-title { font-size: 18px; font-weight: 700; color: #1f2937; margin: 24px 0 12px 0; padding-top: 16px; border-top: 1px solid #f3f4f6; }
         
-        /* CALENDARIO NATIVO EN ROJO */
+        /* NUEVO: CALENDARIO VISUAL EN ROJO INSTITUCIONAL */
         .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .cal-header h3 { font-size: 15px; font-weight: 700; }
         .cal-btn { background: #f3f4f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
@@ -44,7 +43,7 @@
         .weekday { font-size: 11px; font-weight: 600; color: #9ca3af; padding-bottom: 4px; }
         .day { font-size: 12px; padding: 8px 0; border-radius: 6px; color: #374151; position: relative; }
         
-        /* Rojo institucional CCOO solicitado */
+        /* Días señalados en rojo cuando hay reservas */
         .day.has-reserve { background-color: #c92128 !important; color: white !important; font-weight: bold; }
         
         /* LISTA DE RESERVAS ACTIVAS */
@@ -55,6 +54,7 @@
         .reserve-info span { font-size: 11px; color: #9ca3af; display: block; margin-top: 2px; }
         .btn-cancel { background-color: #fef2f2; color: #ef4444; border: none; padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; }
         
+        .status-msg { font-size: 13px; color: #c92128; text-align: center; padding: 8px 0; font-weight: 500; }
         .empty-text { font-size: 13px; color: #9ca3af; text-align: center; padding: 10px 0; }
     </style>
 </head>
@@ -68,13 +68,13 @@
         </header>
 
         <main>
-            <!-- Formulario puramente local para evitar que el proxy bloquee el clic -->
-            <form id="formReserva" onsubmit="procesarReservaInterna(event)">
+            <!-- Formulario Base -->
+            <form id="formReserva">
                 <div class="form-group">
                     <label>Seleccionar Vehículo</label>
                     <select id="vehiculo" required>
                         <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
-                        <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (7 Plazas)</option>
+                        <option value="Seat Alhambra (Largo/Material - 7 Plazas)">Seat Alhambra (Largo/Material - 7 Plazas)</option>
                     </select>
                 </div>
 
@@ -97,10 +97,12 @@
                     </select>
                 </div>
 
-                <button type="submit" class="btn-submit">Confirmar Reserva</button>
+                <button type="submit" id="btnReservar" class="btn-submit">Confirmar Reserva</button>
             </form>
 
-            <!-- Calendario Mensual -->
+            <div id="statusMessage" class="status-msg">Sincronizando con la nube...</div>
+
+            <!-- NUEVO: Bloque del Calendario Visual -->
             <div class="section-title">Calendario Mensual</div>
             <div class="cal-header">
                 <button class="cal-btn" id="prevMonth">&lt;</button>
@@ -109,7 +111,7 @@
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
 
-            <!-- Lista de Reservas Activas -->
+            <!-- Agenda Inferior Base -->
             <div class="section-title">Agenda de Reservas Activas</div>
             <div class="reserve-list" id="listaReservas">
                 <div class="empty-text">No hay reservas registradas.</div>
@@ -118,43 +120,38 @@
     </div>
 
     <script>
-        // URL de sincronización asíncrona pasiva externa
+        // Tu URL de Google Sheets del código funcional anterior
         const SCRIPT_URL = "https://google.com";
         
-        // Inicializar array de reservas en memoria volátil de ejecución
         let reservas = [];
-        
-        // Intentar recuperar de forma segura registros locales anteriores si la directiva del navegador corporativo lo permite
-        try {
-            const copiaLocal = localStorage.getItem('ccoo_flota_db');
-            if (copiaLocal) {
-                reservas = JSON.parse(copiaLocal);
-            }
-        } catch(e) {
-            console.log("Aislamiento de almacenamiento activo.");
-        }
-
         let currentDate = new Date();
 
-        // Cargar los elementos iniciales en pantalla
         document.addEventListener('DOMContentLoaded', () => {
             renderCalendario();
             renderLista();
-            
-            // Intento silencioso de leer la base de datos de Sheets si el proxy permite la descarga inicial
+            cargarReservasDesdeGoogle();
+        });
+
+        // Carga idéntica a la que te funcionaba
+        function cargarReservasDesdeGoogle() {
+            document.getElementById('statusMessage').innerText = "Sincronizando con la nube...";
             fetch(SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
-                    if (data && Array.isArray(data) && data.length > 0) {
+                    if (data && Array.isArray(data)) {
                         reservas = data;
-                        try { localStorage.setItem('ccoo_flota_db', JSON.stringify(reservas)); } catch(e){}
                         renderCalendario();
                         renderLista();
+                        document.getElementById('statusMessage').innerText = "✓ Conectado a la flota";
+                        setTimeout(() => { document.getElementById('statusMessage').innerText = ""; }, 3000);
                     }
                 })
-                .catch(err => console.log("Operando en entorno aislado de máxima seguridad."));
-        });
+                .catch(e => {
+                    document.getElementById('statusMessage').innerText = "Modo offline activo";
+                });
+        }
 
+        // Renderizado del calendario integrado
         function renderCalendario() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
@@ -190,7 +187,6 @@
                 const mStr = String(month + 1).padStart(2, '0');
                 const fechaCelda = `${year}-${mStr}-${dStr}`;
 
+                // SEÑALADO EN ROJO: Comprobar si el día tiene alguna reserva activa
                 const tieneReserva = reservas.some(r => r.fecha === fechaCelda);
                 if (tieneReserva) {
-                    div.className = 'day has-reserve';
-                }
