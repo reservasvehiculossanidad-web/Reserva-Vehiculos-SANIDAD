@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
     <style>
-        /* ESTILOS INTERNOS INTEGRADOS - INDEPENDENCIA TOTAL DE LA RED */
+        /* ESTILOS INTERNOS INTEGRADOS - MÁXIMA COMPATIBILIDAD SIN ENLACES EXTERNOS */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f3f4f6; color: #333; padding: 10px; display: flex; justify-content: center; }
         
@@ -118,34 +118,52 @@
     </div>
 
     <script>
-        // Nueva URL de tu Google Apps Script integrada con éxito
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8XnePmlYebZZonsJyJ_hu-Xl0nSP5mGZxzuIvitTkNbvgPHemGZlxRYxuq5m9Qr1xoA/exec";
+        const SCRIPT_URL = "https://google.com";
         
-        // Base de datos inmediata local para asegurar el renderizado
-        let reservas = JSON.parse(localStorage.getItem('ccoo_reservas')) || [];
+        // Cargar Base de datos local inmediata garantizada
+        let reservas = [];
+        try {
+            const guardadas = localStorage.getItem('ccoo_reservas');
+            if (guardadas) reservas = JSON.parse(guardadas);
+        } catch (e) {
+            console.log("Error al leer localStorage, reiniciando array.");
+            reservas = [];
+        }
+        
         let currentDate = new Date();
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Pintar inmediatamente la interfaz con lo que tengamos guardado localmente
             renderCalendario();
             renderLista();
             
-            // Intento de sincronización inicial pasiva desde la nueva URL
-            fetch(SCRIPT_URL)
+            // Intentar consultar a la nube con un temporizador límite (AbortController) de 1.5 segundos.
+            // Si la red del hospital tarda más o bloquea la petición, se cancela automáticamente para no romper la app.
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+            fetch(SCRIPT_URL, { signal: controller.signal })
                 .then(res => res.json())
                 .then(data => {
-                    if (data && Array.isArray(data) && data.length > 0) {
-                        reservas = data;
+                    clearTimeout(timeoutId);
+                    if (data && Array.isArray(data)) {
+                        // Limpieza y validación estricta de los datos que vienen de la nube
+                        reservas = data.filter(r => r && r.fecha && r.vehiculo && r.franja);
                         localStorage.setItem('ccoo_reservas', JSON.stringify(reservas));
                         renderCalendario();
                         renderLista();
                     }
                 })
-                .catch(e => console.log("Usando base de datos interna offline segura."));
+                .catch(e => {
+                    clearTimeout(timeoutId);
+                    console.log("Modo blindado activado: Funcionando de manera local sin bloqueos.");
+                });
         });
 
         function renderCalendario() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
+            if (!grid || !title) return;
             grid.innerHTML = '';
             
             const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -173,21 +191,3 @@
                 const div = document.createElement('div');
                 div.className = 'day';
                 div.innerText = day;
-                
-                const dStr = String(day).padStart(2, '0');
-                const mStr = String(month + 1).padStart(2, '0');
-                const fechaCelda = `${year}-${mStr}-${dStr}`;
-
-                const tieneReserva = reservas.some(r => r.fecha === fechaCelda);
-                if (tieneReserva) {
-                    div.className = 'day has-reserve';
-                }
-                grid.appendChild(div);
-            }
-        }
-
-        document.getElementById('prevMonth').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendario(); });
-        document.getElementById('nextMonth').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendario(); });
-
-        function renderLista() {
-            const container = document.getElementById('listaReservas');
