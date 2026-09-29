@@ -35,7 +35,7 @@
         
         .section-title { font-size: 18px; font-weight: 700; color: #1f2937; margin: 24px 0 12px 0; padding-top: 16px; border-top: 1px solid #f3f4f6; }
         
-        /* CALENDARIO VISUAL EN ROJO INSTITUCIONAL */
+        /* CALENDARIO VISUAL EN ROJO INSTITUCIONAL CCOO */
         .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .cal-header h3 { font-size: 15px; font-weight: 700; }
         .cal-btn { background: #f3f4f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
@@ -120,18 +120,17 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://google.com";
+        // Nueva URL fija vinculada con éxito a tu Google Sheets
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwaGvv42C11XB1ncJNyvz12JJ_wp4dvvJ-DdzMDTxAMULq9D78razvBtJ_bcvfm3Q5H3w/exec";
         
-        // Base de datos inmediata local para saltar bloqueos de arranque
         let reservas = JSON.parse(localStorage.getItem('ccoo_flota_local')) || [];
         let currentDate = new Date();
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Pintar inmediatamente la interfaz usando la memoria para que no se quede colgado
             renderCalendario();
             renderLista();
             
-            // Intentar sincronizar datos previos de Sheets en segundo plano sin congelar la pantalla
+            // Sincronización pasiva inicial
             fetch(SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
@@ -148,7 +147,7 @@
                 });
         });
 
-        // Renderizado del calendario integrado
+        // Dibujar calendario nativo
         function renderCalendario() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
@@ -188,3 +187,6 @@
                 if (tieneReserva) {
                     div.className = 'day has-reserve';
                 }
+                grid.appendChild(div);
+            }
+        }
