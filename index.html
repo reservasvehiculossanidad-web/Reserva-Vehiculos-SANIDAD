@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
     <style>
-        /* ESTILOS INTERNOS INTEGRADOS - MÁXIMA COMPATIBILIDAD */
+        /* ESTILOS INTERNOS INTEGRADOS - INDEPENDENCIA TOTAL DE LA RED */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f3f4f6; color: #333; padding: 10px; display: flex; justify-content: center; }
         
@@ -44,7 +44,7 @@
         .weekday { font-size: 11px; font-weight: 600; color: #9ca3af; padding-bottom: 4px; }
         .day { font-size: 12px; padding: 8px 0; border-radius: 6px; color: #374151; position: relative; }
         
-        /* Pintado en rojo solicitado */
+        /* Pintado en rojo institucional solicitado */
         .day.has-reserve { background-color: #c92128 !important; color: white !important; font-weight: bold; }
         
         /* LISTA DE RESERVAS ACTIVAS */
@@ -118,9 +118,10 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://google.com";
+        // Nueva URL de tu Google Apps Script integrada con éxito
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8XnePmlYebZZonsJyJ_hu-Xl0nSP5mGZxzuIvitTkNbvgPHemGZlxRYxuq5m9Qr1xoA/exec";
         
-        // Base de datos inmediata local
+        // Base de datos inmediata local para asegurar el renderizado
         let reservas = JSON.parse(localStorage.getItem('ccoo_reservas')) || [];
         let currentDate = new Date();
 
@@ -128,7 +129,7 @@
             renderCalendario();
             renderLista();
             
-            // Intento de sincronización inicial pasiva
+            // Intento de sincronización inicial pasiva desde la nueva URL
             fetch(SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
@@ -139,7 +140,7 @@
                         renderLista();
                     }
                 })
-                .catch(e => console.log("Usando base de datos persistente local."));
+                .catch(e => console.log("Usando base de datos interna offline segura."));
         });
 
         function renderCalendario() {
@@ -177,7 +178,6 @@
                 const mStr = String(month + 1).padStart(2, '0');
                 const fechaCelda = `${year}-${mStr}-${dStr}`;
 
-                // Comprobación directa de la cadena de fecha
                 const tieneReserva = reservas.some(r => r.fecha === fechaCelda);
                 if (tieneReserva) {
                     div.className = 'day has-reserve';
@@ -191,4 +191,3 @@
 
         function renderLista() {
             const container = document.getElementById('listaReservas');
-            if (!reservas || reservas.length === 0) {
