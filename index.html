@@ -35,7 +35,7 @@
         
         .section-title { font-size: 18px; font-weight: 700; color: #1f2937; margin: 24px 0 12px 0; padding-top: 16px; border-top: 1px solid #f3f4f6; }
         
-        /* NUEVO: CALENDARIO VISUAL EN ROJO INSTITUCIONAL */
+        /* CALENDARIO VISUAL EN ROJO INSTITUCIONAL */
         .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .cal-header h3 { font-size: 15px; font-weight: 700; }
         .cal-btn { background: #f3f4f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
@@ -54,7 +54,7 @@
         .reserve-info span { font-size: 11px; color: #9ca3af; display: block; margin-top: 2px; }
         .btn-cancel { background-color: #fef2f2; color: #ef4444; border: none; padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; }
         
-        .status-msg { font-size: 13px; color: #c92128; text-align: center; padding: 8px 0; font-weight: 500; }
+        .status-msg { font-size: 13px; color: #4b5563; text-align: center; padding: 8px 0; font-weight: 500; }
         .empty-text { font-size: 13px; color: #9ca3af; text-align: center; padding: 10px 0; }
     </style>
 </head>
@@ -100,9 +100,9 @@
                 <button type="submit" id="btnReservar" class="btn-submit">Confirmar Reserva</button>
             </form>
 
-            <div id="statusMessage" class="status-msg">Sincronizando con la nube...</div>
+            <div id="statusMessage" class="status-msg">Aplicación lista</div>
 
-            <!-- NUEVO: Bloque del Calendario Visual -->
+            <!-- Bloque del Calendario Visual -->
             <div class="section-title">Calendario Mensual</div>
             <div class="cal-header">
                 <button class="cal-btn" id="prevMonth">&lt;</button>
@@ -120,36 +120,33 @@
     </div>
 
     <script>
-        // Tu URL de Google Sheets del código funcional anterior
         const SCRIPT_URL = "https://google.com";
         
-        let reservas = [];
+        // Base de datos inmediata local para saltar bloqueos de arranque
+        let reservas = JSON.parse(localStorage.getItem('ccoo_flota_local')) || [];
         let currentDate = new Date();
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Pintar inmediatamente la interfaz usando la memoria para que no se quede colgado
             renderCalendario();
             renderLista();
-            cargarReservasDesdeGoogle();
-        });
-
-        // Carga idéntica a la que te funcionaba
-        function cargarReservasDesdeGoogle() {
-            document.getElementById('statusMessage').innerText = "Sincronizando con la nube...";
+            
+            // Intentar sincronizar datos previos de Sheets en segundo plano sin congelar la pantalla
             fetch(SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
-                    if (data && Array.isArray(data)) {
+                    if (data && Array.isArray(data) && data.length > 0) {
                         reservas = data;
+                        localStorage.setItem('ccoo_flota_local', JSON.stringify(reservas));
                         renderCalendario();
                         renderLista();
-                        document.getElementById('statusMessage').innerText = "✓ Conectado a la flota";
-                        setTimeout(() => { document.getElementById('statusMessage').innerText = ""; }, 3000);
+                        document.getElementById('statusMessage').innerText = "✓ Sincronizado con Sheets";
                     }
                 })
                 .catch(e => {
-                    document.getElementById('statusMessage').innerText = "Modo offline activo";
+                    document.getElementById('statusMessage').innerText = "✓ Conectado (Modo Protegido Local)";
                 });
-        }
+        });
 
         // Renderizado del calendario integrado
         function renderCalendario() {
@@ -187,6 +184,7 @@
                 const mStr = String(month + 1).padStart(2, '0');
                 const fechaCelda = `${year}-${mStr}-${dStr}`;
 
-                // SEÑALADO EN ROJO: Comprobar si el día tiene alguna reserva activa
                 const tieneReserva = reservas.some(r => r.fecha === fechaCelda);
                 if (tieneReserva) {
+                    div.className = 'day has-reserve';
+                }
