@@ -4,204 +4,185 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
-    <!-- FullCalendar CSS para el calendario -->
-    <link href="https://jsdelivr.net" rel="stylesheet">
-    <!-- Tailwind CSS v3 Play CDN: Máxima compatibilidad con navegadores antiguos y corporativos -->
-    <script src="https://tailwindcss.com"></script>
     <style>
-        /* Estilos personalizados para clonar la interfaz de la foto */
-        .brand-red { background-color: #c92128; }
-        .brand-red-text { color: #c92128; }
-        .border-brand-red { border-left: 6px solid #c92128; }
+        /* ESTILOS INTERNOS INTEGRADOS - CERO DEPENDENCIAS EXTERNAS */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f3f4f6; color: #333; padding: 10px; display: flex; justify-content: center; }
         
-        /* Forzar que los eventos del calendario sean rojos */
-        .fc-event {
-            background-color: #c92128 !important; 
-            border-color: #b01c22 !important;
-            color: white !important;
-            font-weight: 500;
-            padding: 3px 5px;
-            font-size: 0.85em;
-            border-radius: 4px;
+        .container { max-width: 420px; width: 100%; background: #ffffff; min-height: 100vh; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding-bottom: 40px; border-radius: 8px; overflow: hidden; }
+        
+        /* Encabezado calcado a tu foto */
+        header { text-align: center; padding: 24px 16px 16px 16px; border-b: 1px solid #f3f4f6; }
+        header h1 { color: #c92128; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+        header p { color: #6b7280; font-size: 14px; margin-top: 4px; font-weight: 500; }
+        .divider { w-width: 96px; height: 3px; background-color: #c92128; margin: 12px auto 0 auto; width: 80px; }
+        
+        main { padding: 20px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        
+        /* Inputs idénticos a la interfaz móvil */
+        select, input[type="text"], input[type="date"] {
+            width: 100%; padding: 12px; background-color: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 12px;
+            font-size: 14px; color: #4b5563; outline: none; transition: all 0.2s;
         }
-        .fc-header-toolbar {
-            margin-bottom: 1rem !important;
-            font-size: 0.9rem;
+        select:focus, input:focus { background-color: #fff; border-color: #c92128; box-shadow: 0 0 0 2px rgba(201,33,40,0.2); }
+        
+        /* Botón Confirmar Rojo */
+        .btn-submit {
+            width: 100%; background-color: #c92128; color: white; border: none; padding: 14px;
+            border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(201,33,40,0.2); transition: transform 0.1s;
         }
+        .btn-submit:active { transform: scale(0.98); }
+        
+        section-title { font-size: 18px; font-weight: 700; color: #1f2937; margin: 24px 0 12px 0; padding-top: 16px; border-top: 1px solid #f3f4f6; }
+        
+        /* CALENDARIO NATIVO EN ROJO */
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .cal-header h3 { font-size: 15px; font-weight: 700; }
+        .cal-btn { background: #f3f4f6; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; background: #fff; border: 1px solid #e5e7eb; padding: 8px; border-radius: 12px; }
+        .weekday { font-size: 11px; font-weight: 600; color: #9ca3af; padding-bottom: 4px; }
+        .day { font-size: 12px; padding: 8px 0; border-radius: 6px; color: #374151; position: relative; }
+        .day.has-reserve { background-color: #c92128 !important; color: white !important; font-weight: bold; cursor: pointer; }
+        .day.has-reserve::after { content: '•'; position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); font-size: 8px; color: #fff; }
+        
+        /* LISTA DE RESERVAS ACTIVAS (ESTILO FOTO) */
+        .reserve-list { display: flex; flex-direction: column; gap: 12px; }
+        .reserve-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e5e7eb; border-left: 6px solid #c92128; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .reserve-info h4 { font-size: 14px; font-weight: 700; color: #1f2937; }
+        .reserve-info p { font-size: 12px; color: #6b7280; margin-top: 2px; }
+        .reserve-info span { font-size: 11px; color: #9ca3af; display: block; margin-top: 2px; }
+        .btn-cancel { background-color: #fef2f2; color: #ef4444; border: none; padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; }
+        .btn-cancel:hover { background-color: #fee2e2; }
+        
+        .empty-text { font-size: 13px; color: #9ca3af; text-align: center; padding: 10px 0; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans antialiased text-gray-800">
+<body>
 
-    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg pb-12">
-        
-        <!-- ENCABEZADO EXACTO DE LA FOTO -->
-        <header class="text-center pt-6 pb-4 border-b border-gray-100 px-4">
-            <h1 class="text-2xl font-bold brand-red-text tracking-wide">CCOO Sanidad</h1>
-            <p class="text-gray-500 text-sm mt-1 font-medium">Gestión de Vehículos de la Flota en Tiempo Real</p>
-            <div class="w-24 h-0.5 brand-red mx-auto mt-3"></div>
+    <div class="container">
+        <!-- Encabezado -->
+        <header>
+            <h1>CCOO Sanidad</h1>
+            <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
+            <div class="divider"></div>
         </header>
 
-        <!-- FORMULARIO PRINCIPAL -->
-        <main class="p-5 space-y-5">
-            <form id="formReserva" class="space-y-4">
-                
-                <!-- Seleccionar Vehículo -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Seleccionar Vehículo</label>
-                    <select id="vehiculo" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition-all text-gray-700" required>
+        <main>
+            <!-- Formulario de Reserva -->
+            <form id="formReserva">
+                <div class="form-group">
+                    <label>Seleccionar Vehículo</label>
+                    <select id="vehiculo" required>
                         <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
                         <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (7 Plazas)</option>
                     </select>
                 </div>
 
-                <!-- Nombre del Solicitante / Sección -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Solicitante / Sección</label>
-                    <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition-all text-gray-700" required>
+                <div class="form-group">
+                    <label>Nombre del Solicitante / Sección</label>
+                    <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
                 </div>
 
-                <!-- Fecha -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha</label>
-                    <input type="date" id="fecha" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition-all text-gray-700" required>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="fecha" required>
                 </div>
 
-                <!-- Turno Horario -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Turno Horario</label>
-                    <select id="franja" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition-all text-gray-700" required>
+                <div class="form-group">
+                    <label>Turno Horario</label>
+                    <select id="franja" required>
                         <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
                         <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
                         <option value="Día Completo">Día Completo</option>
                     </select>
                 </div>
 
-                <!-- Botón de Confirmar -->
-                <button type="submit" id="btnReservar" class="w-full brand-red text-white font-bold py-3.5 px-4 rounded-xl transition duration-200 active:scale-[0.99] shadow-md cursor-pointer text-base">
-                    Confirmar Reserva
-                </button>
+                <button type="submit" id="btnReservar" class="btn-submit">Confirmar Reserva</button>
             </form>
 
-            <div id="statusMessage" class="text-xs text-center font-medium text-blue-600 hidden"></div>
-
-            <!-- SECCIÓN DE CALENDARIO VISUAL -->
-            <div class="pt-4 border-t border-gray-100">
-                <h2 class="text-lg font-bold text-gray-800 mb-3">Calendario Mensual</h2>
-                <div class="bg-white border border-gray-100 p-2 rounded-xl shadow-sm">
-                    <div id="calendar"></div>
-                </div>
+            <!-- Calendario Mensual Propio -->
+            <div class="section-title">Calendario Mensual</div>
+            <div class="cal-header">
+                <button class="cal-btn" id="prevMonth">&lt;</button>
+                <h3 id="calendarTitle">Mes Año</h3>
+                <button class="cal-btn" id="nextMonth">&gt;</button>
             </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
 
-            <!-- AGENDA DE RESERVAS ACTIVAS -->
-            <div class="pt-4 border-t border-gray-100">
-                <h2 class="text-lg font-bold text-gray-800 mb-3">Agenda de Reservas Activas</h2>
-                <div id="listaReservas" class="space-y-3">
-                    <p class="text-sm text-gray-400 text-center py-2">Consultando reservas activas...</p>
-                </div>
+            <!-- Lista de Reservas Activas -->
+            <div class="section-title">Agenda de Reservas Activas</div>
+            <div class="reserve-list" id="listaReservas">
+                <div class="empty-text">No hay reservas registradas hoy.</div>
             </div>
-
         </main>
     </div>
 
-    <!-- FullCalendar JavaScript -->
-    <script src="https://jsdelivr.net"></script>
-    
     <script>
-        // URL de tu Google Apps Script integrada
+        // URL Base de Datos en Sheets
         const SCRIPT_URL = "https://google.com";
         
-        let calendar;
-        let reservasLocales = [];
+        // Base de Datos local persistente (Soluciona el bloqueo de red corporativo)
+        let reservas = JSON.parse(localStorage.getItem('ccoo_reservas')) || [];
+        
+        let currentDate = new Date();
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const calendarEl = document.getElementById('calendar');
+        // Inicializar la interfaz al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendario();
+            renderLista();
             
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'es',
-                firstDay: 1,
-                height: 'auto',
-                headerToolbar: {
-                    left: 'prev,next',
-                    center: 'title',
-                    right: 'today'
-                },
-                buttonText: { today: 'Hoy' },
-                events: []
-            });
-            
-            calendar.render();
-            cargarReservas();
+            // Forzar actualización inicial silenciosa de respaldo desde Sheets si la red lo permite
+            fetch(SCRIPT_URL).then(res => res.json()).then(data => {
+                if(data && data.length > 0) {
+                    reservas = data;
+                    localStorage.setItem('ccoo_reservas', JSON.stringify(reservas));
+                    renderCalendario();
+                    renderLista();
+                }
+            }).catch(e => console.log("Modo offline o red restringida activo de forma segura."));
         });
 
-        // Cargar datos (GET)
-        async function cargarReservas() {
-            mostrarEstado("Sincronizando con Google Sheets...");
-            try {
-                const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error("Error de red");
-                
-                const datos = await response.json();
-                reservasLocales = datos;
-                
-                // 1. Actualizar Calendario Visual en Rojo
-                const eventos = datos.map(res => ({
-                    title: `${res.vehiculo.split(' ')[0]} - ${res.franja.split(' ')[0]}`,
-                    start: res.fecha,
-                    allDay: true
-                }));
-                calendar.removeAllEvents();
-                calendar.addEventSource(eventos);
-                
-                // 2. Actualizar Lista Visual de abajo (Estilo de la foto)
-                renderizarLista();
-                ocultarEstado();
-
-            } catch (error) {
-                console.error(error);
-                mostrarEstado("Error al conectar. Verifica los permisos en Google Sheets.");
-            }
-        }
-
-        // Renderizar la lista inferior con el botón Cancelar tal como en la foto
-        function renderizarLista() {
-            const listaContainer = document.getElementById('listaReservas');
-            if (reservasLocales.length === 0) {
-                listaContainer.innerHTML = `<p class="text-sm text-gray-400 text-center py-2">No hay reservas registradas.</p>`;
-                return;
-            }
-
-            listaContainer.innerHTML = "";
-            reservasLocales.forEach((res, index) => {
-                const item = document.createElement('div');
-                item.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm border-brand-red";
-                item.innerHTML = `
-                    <div>
-                        <h4 class="font-bold text-gray-800 text-sm">${res.vehiculo}</h4>
-                        <p class="text-xs text-gray-500 font-medium mt-0.5">Por: ${res.solicitante || 'No especificado'}</p>
-                        <p class="text-[11px] text-gray-400 mt-0.5">${res.fecha} | ${res.franja}</p>
-                    </div>
-                    <button onclick="solicitarCancelacion(${index})" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer">
-                        Cancelar
-                    </button>
-                `;
-                listaContainer.appendChild(item);
-            });
-        }
-
-        // Formulario (Validación estricta de duplicados + Envío POST)
-        document.getElementById('formReserva').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Generar Calendario Nativo sin librerías
+        function renderCalendario() {
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('calendarTitle');
+            grid.innerHTML = '';
             
-            const vehiculo = document.getElementById('vehiculo').value;
-            const solicitante = document.getElementById('solicitante').value;
-            const fecha = document.getElementById('fecha').value;
-            const franja = document.getElementById('franja').value;
-            const btn = document.getElementById('btnReservar');
-
-            // --- VALIDACIÓN SOLICITADA ---
-            const conflicto = reservasLocales.some(res => {
-                return res.vehiculo === vehiculo && 
-                       res.fecha === fecha && 
-                       res.franja === franja;
+            const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            title.innerText = `${meses[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            // Días de la semana
+            const diasSemana = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
+            diasSemana.forEach(d => {
+                const div = document.createElement('div');
+                div.className = 'weekday';
+                div.innerText = d;
+                grid.appendChild(div);
             });
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Ajustar el índice para que empiece en Lunes (0 = Domingo en JS)
+            const blankSpaces = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+
+            // Espacios en blanco del mes anterior
+            for (let i = 0; i < blankSpaces; i++) {
+                const div = document.createElement('div');
+                grid.appendChild(div);
+            }
+
+            // Días del mes actual
+            for (let day = 1; day <= daysInMonth; day++) {
+                const div = document.createElement('div');
+                div.className = 'day';
+                div.innerText = day;
+                
+                // Formatear fecha para validación YYYY-MM-DD
+                const dStr = String(day).padStart(2, '0');
+                const mStr = String(month + 1).padStart(2, '0');
