@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
     <style>
-        /* ESTILOS INTERNOS INTEGRADOS - INDEPENDENCIA TOTAL */
+        /* ESTILOS INTERNOS INTEGRADOS - MÁXIMA COMPATIBILIDAD */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f3f4f6; color: #333; padding: 10px; display: flex; justify-content: center; }
         
@@ -120,7 +120,7 @@
     <script>
         const SCRIPT_URL = "https://google.com";
         
-        // Cargar Base de datos interna inmediata
+        // Base de datos inmediata local
         let reservas = JSON.parse(localStorage.getItem('ccoo_reservas')) || [];
         let currentDate = new Date();
 
@@ -128,15 +128,18 @@
             renderCalendario();
             renderLista();
             
-            // Intento de descarga en segundo plano por si la red no lo bloquea temporalmente
-            fetch(SCRIPT_URL).then(res => res.json()).then(data => {
-                if(data && data.length > 0) {
-                    reservas = data;
-                    localStorage.setItem('ccoo_reservas', JSON.stringify(reservas));
-                    renderCalendario();
-                    renderLista();
-                }
-            }).catch(e => console.log("Carga inicial desde caché local asegurada."));
+            // Intento de sincronización inicial pasiva
+            fetch(SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        reservas = data;
+                        localStorage.setItem('ccoo_reservas', JSON.stringify(reservas));
+                        renderCalendario();
+                        renderLista();
+                    }
+                })
+                .catch(e => console.log("Usando base de datos persistente local."));
         });
 
         function renderCalendario() {
@@ -174,6 +177,7 @@
                 const mStr = String(month + 1).padStart(2, '0');
                 const fechaCelda = `${year}-${mStr}-${dStr}`;
 
+                // Comprobación directa de la cadena de fecha
                 const tieneReserva = reservas.some(r => r.fecha === fechaCelda);
                 if (tieneReserva) {
                     div.className = 'day has-reserve';
@@ -187,8 +191,4 @@
 
         function renderLista() {
             const container = document.getElementById('listaReservas');
-            if (reservas.length === 0) {
-                container.innerHTML = '<div class="empty-text">No hay reservas registradas.</div>';
-                return;
-            }
-            container.innerHTML = '';
+            if (!reservas || reservas.length === 0) {
