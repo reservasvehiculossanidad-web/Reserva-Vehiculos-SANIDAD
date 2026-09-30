@@ -4,131 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reserva Vehículos - Sanidad CCOO</title>
-    <!-- FullCalendar CSS y JS -->
-    <link href="https://jsdelivr.net" rel="stylesheet">
-    <script src="https://jsdelivr.net"></script>
-    
     <style>
-        :root {
-            --primary-color: #b32424; /* Rojo CCOO */
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 3px solid var(--primary-color);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .header h1 {
-            color: var(--primary-color);
-            margin: 0 0 5px 0;
-            font-size: 28px;
-        }
-
-        .header p {
-            margin: 0;
-            color: #666;
-            font-style: italic;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 15px;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 5px rgba(179, 36, 36, 0.3);
-        }
-
-        .btn-submit {
-            width: 100%;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn-submit:hover {
-            background-color: #911d1d;
-        }
-
-        .status-message {
-            text-align: center;
-            margin: 15px 0;
-            font-weight: bold;
-            display: none;
-        }
-
-        .section-title {
-            margin-top: 40px;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 8px;
-            color: var(--primary-color);
-            font-size: 22px;
-        }
-
-        /* Estilos personalizados para FullCalendar */
-        #calendar {
-            margin-top: 20px;
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-        .fc-header-toolbar {
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .fc-event {
-            cursor: pointer;
-            padding: 2px 4px;
-            font-size: 13px !important;
-        }
+        :root { --primary: #d62323; --primary-hover: #b01c1c; --bg: #f4f6f9; --text: #333; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid var(--primary); padding-bottom: 15px; }
+        .header h1 { color: var(--primary); font-size: 24px; }
+        .header p { font-size: 14px; color: #666; margin-top: 5px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; outline: none; }
+        input:focus, select:focus { border-color: var(--primary); }
+        .btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: var(--primary-hover); }
+        .loading { text-align: center; color: #666; font-style: italic; margin: 15px 0; display: none; }
+        .reservas-section { margin-top: 30px; }
+        .reservas-section h2 { font-size: 18px; margin-bottom: 15px; color: #444; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .card { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; position: relative; }
+        .card-info h3 { font-size: 16px; color: #222; }
+        .card-info p { font-size: 13px; color: #666; margin-top: 4px; }
+        .btn-delete { background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-delete:hover { background: #bd2130; }
     </style>
 </head>
 <body>
@@ -139,170 +36,171 @@
         <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
     </div>
 
-    <!-- Formulario de Reserva -->
-    <form id="reservaForm" onsubmit="confirmarReserva(event)">
+    <form id="reservaForm">
         <div class="form-group">
             <label for="vehiculo">Seleccionar Vehículo</label>
-            <select id="vehiculo" class="form-control" required>
-                <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
-                <option value="Seat Alhambra (Largo/Material - 7 Plazas)">Seat Alhambra (Largo/Material - 7 Plazas)</option>
+            <select id="vehiculo" required>
+                <option value="Dacia Sandero (5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
+                <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (Largo/Material - 7 Plazas)</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="usuario">Nombre del Solicitante / Sección</label>
-            <input type="text" id="usuario" class="form-control" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
+            <input type="text" id="usuario" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
         </div>
 
         <div class="form-group">
             <label for="fecha">Fecha</label>
-            <input type="date" id="fecha" class="form-control" required>
+            <input type="date" id="fecha" required>
         </div>
 
         <div class="form-group">
             <label for="turno">Turno Horario</label>
-            <select id="turno" class="form-control" required>
+            <select id="turno" required>
                 <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
                 <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
                 <option value="Día Completo">Día Completo</option>
             </select>
         </div>
 
-        <button type="submit" class="btn-submit">Confirmar Reserva</button>
+        <button type="submit" class="btn">Confirmar Reserva</button>
     </form>
 
-    <div id="status" class="status-message">Sincronizando con la nube...</div>
+    <div class="loading" id="loadingState">Sincronizando con la nube...</div>
 
-    <!-- Sección del Calendario -->
-    <h2 class="section-title">Agenda de Reservas Activas</h2>
-    <div id="calendar"></div>
+    <div class="reservas-section">
+        <h2>Agenda de Reservas Activas</h2>
+        <div id="listaReservas"></div>
+    </div>
 </div>
 
 <script>
-    // URL DE TU DESPLIEGUE DE GOOGLE APPS SCRIPT
-    const WEB_APP_URL = "SUSTITUYE_ESTO_POR_TU_URL_DE_APPS_SCRIPT"; 
-    
-    let calendar;
+    // Enlace de Google Apps Script optimizado para la nueva cuenta de Gmail
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxjiiN8U98-N782j-ualO1EWYBF52FVGpSRR3DvUj0H684ogQ8QoMLPJmt5djeiggCMjw/exec";
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar');
+    let reservas = [];
+    const loadingState = document.getElementById('loadingState');
+
+    // Impedir que se escojan fechas pasadas en el calendario
+    document.getElementById('fecha').min = new Date().toISOString().split('T')[0];
+
+    async function cargarReservas() {
+        showLoading(true);
+        try {
+            const response = await fetch(WEB_APP_URL);
+            reservas = await response.json();
+            renderReservas();
+        } catch (error) {
+            console.error("Error al cargar datos:", error);
+            document.getElementById('listaReservas').innerHTML = '<p style="color:#888; font-style:italic; font-size:13px;">Error de sincronización inicial.</p>';
+        }
+        showLoading(false);
+    }
+
+    function renderReservas() {
+        const lista = document.getElementById('listaReservas');
+        lista.innerHTML = '';
         
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            locale: 'es',
-            firstDay: 1, 
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek'
-            },
-            buttonText: {
-                today: 'Hoy',
-                month: 'Mes',
-                week: 'Semana'
-            },
-            eventClick: function(info) {
-                // Al hacer clic en un evento del calendario, da la opción de eliminarlo
-                if (confirm(`¿Deseas cancelar la reserva de:\n${info.event.title}?`)) {
-                    eliminarReserva(info.event.id);
-                }
-            }
+        if (!Array.isArray(reservas) || reservas.length === 0) {
+            lista.innerHTML = '<p style="color:#888; font-style:italic; font-size:14px;">No hay reservas registradas.</p>';
+            return;
+        }
+
+        reservas.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+
+        reservas.forEach(res => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-info">
+                    <h3>${res.vehiculo}</h3>
+                    <p><strong>Por:</strong> ${res.usuario}</p>
+                    <p><strong>Fecha:</strong> ${formatearFecha(res.fecha)} | <strong>Turno:</strong> ${res.turno}</p>
+                </div>
+                <button class="btn-delete" onclick="borrarReserva('${res.id}')">Cancelar</button>
+            `;
+            lista.appendChild(card);
         });
-        
-        calendar.render();
-        cargarReservas();
-    });
-
-    function mostrarStatus(texto, color = "#333") {
-        const statusEl = document.getElementById("status");
-        statusEl.innerText = texto;
-        statusEl.style.color = color;
-        statusEl.style.display = "block";
     }
 
-    function ocultarStatus() {
-        document.getElementById("status").style.display = "none";
-    }
-
-    // Obtener reservas desde la hoja de cálculo
-    function cargarReservas() {
-        mostrarStatus("Cargando agenda de reservas...", "#333");
+    document.getElementById('reservaForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        fetch(WEB_APP_URL)
-            .then(response => response.json())
-            .then(data => {
-                calendar.removeAllEvents();
-                
-                data.forEach(reserva => {
-                    // Limpiar el nombre del vehículo para que el título no sea extremadamente largo
-                    const vehiculoCorto = reserva.vehiculo.split('(')[0].trim();
-                    
-                    calendar.addEvent({
-                        id: reserva.id,
-                        title: `${vehiculoCorto} - ${reserva.usuario} (${reserva.turno.split(' ')[0]})`,
-                        start: reserva.fecha, 
-                        allDay: true,
-                        backgroundColor: var(--primary-color),
-                        borderColor: var(--primary-color),
-                        extendedProps: {
-                            turno: reserva.turno,
-                            vehiculoCompleto: reserva.vehiculo
-                        }
-                    });
-                });
-                ocultarStatus();
-            })
-            .catch(err => {
-                console.error(err);
-                mostrarStatus("Error al cargar las reservas activos.", "red");
-            });
-    }
+        const vehiculo = document.getElementById('vehiculo').value;
+        const usuario = document.getElementById('usuario').value;
+        const fecha = document.getElementById('fecha').value;
+        const turno = document.getElementById('turno').value;
 
-    // Enviar formulario controlando la validación del servidor
-    function confirmarReserva(event) {
-        event.preventDefault();
-        
-        const vehiculo = document.getElementById("vehiculo").value;
-        const usuario = document.getElementById("usuario").value;
-        const fecha = document.getElementById("fecha").value;
-        const turno = document.getElementById("turno").value;
+        // Validar conflicto de horario
+        const conflicto = reservas.find(r => r.vehiculo === vehiculo && r.fecha === fecha && 
+            (r.turno === turno || r.turno === "Día Completo" || turno === "Día Completo")
+        );
 
-        mostrarStatus("Comprobando disponibilidad y guardando...", "orange");
+        if (conflicto) {
+            alert(`⚠️ Conflicto: El vehículo ya está reservado ese día por ${conflicto.usuario}.`);
+            return;
+        }
 
         const nuevaReserva = {
             action: "add",
-            id: "ID-" + Date.now(), // Generación de identificador único basado en tiempo
+            id: Date.now().toString(),
             vehiculo: vehiculo,
             usuario: usuario,
             fecha: fecha,
             turno: turno
         };
 
-        fetch(WEB_APP_URL, {
-            method: "POST",
-            body: JSON.stringify(nuevaReserva)
-        })
-        .then(response => response.json())
-        .then(res => {
-            if (res.status === "success") {
-                alert("¡Reserva confirmada con éxito!");
-                document.getElementById("reservaForm").reset();
+        showLoading(true);
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevaReserva)
+            });
+            
+            // Forzar actualización suave tras guardar
+            setTimeout(() => {
                 cargarReservas();
-            } else if (res.status === "error") {
-                // Captura el bloqueo enviado desde el Apps Script
-                alert("No se puede realizar la reserva:\n" + res.message);
-                ocultarStatus();
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            mostrarStatus("Error de red o comunicación con el servidor.", "red");
-        });
+                document.getElementById('reservaForm').reset();
+                document.getElementById('fecha').min = new Date().toISOString().split('T')[0];
+            }, 1200);
+            
+        } catch (error) {
+            alert('Error al guardar la reserva.');
+            showLoading(false);
+        }
+    });
+
+    async function borrarReserva(id) {
+        if (!confirm('¿Seguro que deseas cancelar esta reserva?')) return;
+        
+        showLoading(true);
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "delete", id: id })
+            });
+            
+            setTimeout(() => { cargarReservas(); }, 1200);
+        } catch (error) {
+            alert('Error al eliminar la reserva.');
+            showLoading(false);
+        }
     }
 
-    // Cancelar reserva desde el calendario
-    function eliminarReserva(id) {
-        mostrarStatus("Cancelando reserva...", "orange");
-        
-        fetch(WEB_APP_URL, {
-            method: "POST",
+    function showLoading(show) {
+        loadingState.style.display = show ? 'block' : 'none';
+    }
+
+    function formatearFecha(f) {
+        const d = new Date(f);
+        return isNaN(d) ? f : d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    cargarReservas();
+</script>
+</body>
