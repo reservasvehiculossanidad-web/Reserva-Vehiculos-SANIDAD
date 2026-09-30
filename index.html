@@ -3,191 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCOO Sanidad - Gestión de Vehículos</title>
+    <title>Reserva Vehículos - Sanidad CCOO</title>
     <style>
-        /* ESTILOS INTERNOS INTEGRADOS DE TU CÓDIGO BASE */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #f3f4f6; color: #333; padding: 10px; display: flex; justify-content: center; }
-        
-        .container { max-width: 420px; width: 100%; background: #ffffff; min-height: 100vh; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding-bottom: 40px; border-radius: 8px; overflow: hidden; }
-        
-        header { text-align: center; padding: 24px 16px 16px 16px; border-b: 1px solid #f3f4f6; }
-        header h1 { color: #c92128; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
-        header p { color: #6b7280; font-size: 14px; margin-top: 4px; font-weight: 500; }
-        .divider { height: 3px; background-color: #c92128; margin: 12px auto 0 auto; width: 80px; }
-        
-        main { padding: 20px; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 6px; }
-        
-        select, input[type="text"], input[type="date"] {
-            width: 100%; padding: 12px; background-color: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 12px;
-            font-size: 14px; color: #4b5563; outline: none; transition: all 0.2s;
-        }
-        select:focus, input:focus { background-color: #fff; border-color: #c92128; }
-        
-        .btn-submit {
-            width: 100%; background-color: #c92128; color: white; border: none; padding: 14px;
-            border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px;
-            box-shadow: 0 4px 6px rgba(201,33,40,0.2);
-        }
-        .btn-submit:active { transform: scale(0.98); }
-        
-        .section-title { font-size: 18px; font-weight: 700; color: #1f2937; margin: 24px 0 12px 0; padding-top: 16px; border-top: 1px solid #f3f4f6; }
-        
-        /* CALENDARIO VISUAL EN ROJO INSTITUCIONAL CCOO */
-        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .cal-header h3 { font-size: 15px; font-weight: 700; }
-        .cal-btn { background: #f3f4f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; background: #fff; border: 1px solid #e5e7eb; padding: 8px; border-radius: 12px; }
-        .weekday { font-size: 11px; font-weight: 600; color: #9ca3af; padding-bottom: 4px; }
-        .day { font-size: 12px; padding: 8px 0; border-radius: 6px; color: #374151; position: relative; }
-        
-        /* Pintado en rojo solicitado */
-        .day.has-reserve { background-color: #c92128 !important; color: white !important; font-weight: bold; }
-        
-        /* LISTA DE RESERVAS ACTIVAS */
-        .reserve-list { display: flex; flex-direction: column; gap: 12px; }
-        .reserve-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e5e7eb; border-left: 6px solid #c92128; }
-        .reserve-info h4 { font-size: 14px; font-weight: 700; color: #1f2937; }
-        .reserve-info p { font-size: 12px; color: #6b7280; margin-top: 2px; }
-        .reserve-info span { font-size: 11px; color: #9ca3af; display: block; margin-top: 2px; }
-        .btn-cancel { background-color: #fef2f2; color: #ef4444; border: none; padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-        .btn-cancel:hover { background-color: #fee2e2; }
-        
-        .status-msg { font-size: 13px; color: #4b5563; text-align: center; padding: 8px 0; font-weight: 500; }
-        .empty-text { font-size: 13px; color: #9ca3af; text-align: center; padding: 10px 0; }
+        :root { --primary: #d62323; --primary-hover: #b01c1c; --bg: #f4f6f9; --text: #333; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid var(--primary); padding-bottom: 15px; }
+        .header h1 { color: var(--primary); font-size: 24px; }
+        .header p { font-size: 14px; color: #666; margin-top: 5px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; outline: none; }
+        input:focus, select:focus { border-color: var(--primary); }
+        .btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: var(--primary-hover); }
+        .loading { text-align: center; color: #666; font-style: italic; margin: 15px 0; display: none; }
+        .reservas-section { margin-top: 30px; }
+        .reservas-section h2 { font-size: 18px; margin-bottom: 15px; color: #444; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .card { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; position: relative; }
+        .card-info h3 { font-size: 16px; color: #222; }
+        .card-info p { font-size: 13px; color: #666; margin-top: 4px; }
+        .btn-delete { background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-delete:hover { background: #bd2130; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>CCOO Sanidad</h1>
-            <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
-            <div class="divider"></div>
-        </header>
-
-        <main>
-            <!-- Formulario Base -->
-            <form id="formReserva">
-                <div class="form-group">
-                    <label>Seleccionar Vehículo</label>
-                    <select id="vehiculo" required>
-                        <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
-                        <option value="Seat Alhambra (Largo/Material - 7 Plazas)">Seat Alhambra (Largo/Material - 7 Plazas)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Nombre del Solicitante / Sección</label>
-                    <input type="text" id="usuario" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" id="fecha" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Turno Horario</label>
-                    <select id="turno" required>
-                        <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
-                        <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
-                        <option value="Día Completo">Día Completo</option>
-                    </select>
-                </div>
-
-                <button type="submit" id="btnReservar" class="btn-submit">Confirmar Reserva</button>
-            </form>
-
-            <div id="statusMessage" class="status-msg">Sincronizando con la nube...</div>
-
-            <!-- Bloque del Calendario Visual -->
-            <div class="section-title">Calendario Mensual</div>
-            <div class="cal-header">
-                <button class="cal-btn" id="prevMonth">&lt;</button>
-                <h3 id="calendarTitle">Mes Año</h3>
-                <button class="cal-btn" id="nextMonth">&gt;</button>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
-
-            <!-- Agenda Inferior Base -->
-            <div class="section-title">Agenda de Reservas Activas</div>
-            <div class="reserve-list" id="listaReservas">
-                <div class="empty-text">No hay reservas registradas.</div>
-            </div>
-        </main>
+<div class="container">
+    <div class="header">
+        <h1>CCOO Sanidad</h1>
+        <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
     </div>
 
-    <script>
-        // Tu nueva URL de Google Sheets con estructura JSON integrada de forma fija
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxstaZWavn5fsxfG0Eg63CoLqDRds93JbJsX_gL4ddh0jOoCtQgeiV25ecFe8vkjlkc8w/exec";
+    <form id="reservaForm">
+        <div class="form-group">
+            <label for="vehiculo">Seleccionar Vehículo</label>
+            <select id="vehiculo" required>
+                <option value="Dacia Sandero (5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
+                <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (Largo/Material - 7 Plazas)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="usuario">Nombre del Solicitante / Sección</label>
+            <input type="text" id="usuario" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
+        </div>
+
+        <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required>
+        </div>
+
+        <div class="form-group">
+            <label for="turno">Turno Horario</label>
+            <select id="turno" required>
+                <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
+                <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
+                <option value="Día Completo">Día Completo</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn">Confirmar Reserva</button>
+    </form>
+
+    <div class="loading" id="loadingState">Sincronizando con la nube...</div>
+
+    <div class="reservas-section">
+        <h2>Agenda de Reservas Activas</h2>
+        <div id="listaReservas"></div>
+    </div>
+</div>
+
+<script>
+    // Enlace de Google Apps Script optimizado para la nueva cuenta de Gmail
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZBCpJ8G8ICkGNg8LvFwSIb5FKOr-h8EmGGtewZyzoriJwe-KJ7420YnRIhbVkMovelQ/exec";
+
+    let reservas = [];
+    const loadingState = document.getElementById('loadingState');
+
+    // Impedir que se escojan fechas pasadas en el calendario
+    document.getElementById('fecha').min = new Date().toISOString().split('T')[0];
+
+    async function cargarReservas() {
+        showLoading(true);
+        try {
+            const response = await fetch(WEB_APP_URL);
+            reservas = await response.json();
+            renderReservas();
+        } catch (error) {
+            console.error("Error al cargar datos:", error);
+            document.getElementById('listaReservas').innerHTML = '<p style="color:#888; font-style:italic; font-size:13px;">Error de sincronización inicial.</p>';
+        }
+        showLoading(false);
+    }
+
+    function renderReservas() {
+        const lista = document.getElementById('listaReservas');
+        lista.innerHTML = '';
         
-        let reservas = [];
-        let currentDate = new Date();
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCalendario();
-            renderLista();
-            cargarReservasDesdeGoogle();
-        });
-
-        // Lectura adaptada al formato JSON de cabeceras mapeadas
-        function cargarReservasDesdeGoogle() {
-            document.getElementById('statusMessage').innerText = "Sincronizando con la nube... 🔄";
-            fetch(SCRIPT_URL)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && Array.isArray(data)) {
-                        reservas = data;
-                        renderCalendario();
-                        renderLista();
-                        document.getElementById('statusMessage').innerText = "";
-                    }
-                })
-                .catch(e => {
-                    document.getElementById('statusMessage').innerText = "Consulta local de seguridad activa";
-                });
+        if (!Array.isArray(reservas) || reservas.length === 0) {
+            lista.innerHTML = '<p style="color:#888; font-style:italic; font-size:14px;">No hay reservas registradas.</p>';
+            return;
         }
 
-        // Renderizado del calendario integrado nativo
-        function renderCalendario() {
-            const grid = document.getElementById('calendarGrid');
-            const title = document.getElementById('calendarTitle');
-            grid.innerHTML = '';
-            
-            const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-            title.innerText = `${meses[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-            
-            const diasSemana = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
-            diasSemana.forEach(d => {
-                const div = document.createElement('div');
-                div.className = 'weekday';
-                div.innerText = d;
-                grid.appendChild(div);
+        reservas.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+
+        reservas.forEach(res => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-info">
+                    <h3>${res.vehiculo}</h3>
+                    <p><strong>Por:</strong> ${res.usuario}</p>
+                    <p><strong>Fecha:</strong> ${formatearFecha(res.fecha)} | <strong>Turno:</strong> ${res.turno}</p>
+                </div>
+                <button class="btn-delete" onclick="borrarReserva('${res.id}')">Cancelar</button>
+            `;
+            lista.appendChild(card);
+        });
+    }
+
+    document.getElementById('reservaForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const vehiculo = document.getElementById('vehiculo').value;
+        const usuario = document.getElementById('usuario').value;
+        const fecha = document.getElementById('fecha').value;
+        const turno = document.getElementById('turno').value;
+
+        // Validar conflicto de horario
+        const conflicto = reservas.find(r => r.vehiculo === vehiculo && r.fecha === fecha && 
+            (r.turno === turno || r.turno === "Día Completo" || turno === "Día Completo")
+        );
+
+        if (conflicto) {
+            alert(`⚠️ Conflicto: El vehículo ya está reservado ese día por ${conflicto.usuario}.`);
+            return;
+        }
+
+        const nuevaReserva = {
+            action: "add",
+            id: Date.now().toString(),
+            vehiculo: vehiculo,
+            usuario: usuario,
+            fecha: fecha,
+            turno: turno
+        };
+
+        showLoading(true);
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevaReserva)
             });
+            
+            // Forzar actualización suave tras guardar
+            setTimeout(() => {
+                cargarReservas();
+                document.getElementById('reservaForm').reset();
+                document.getElementById('fecha').min = new Date().toISOString().split('T')[0];
+            }, 1200);
+            
+        } catch (error) {
+            alert('Error al guardar la reserva.');
+            showLoading(false);
+        }
+    });
 
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const blankSpaces = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+    async function borrarReserva(id) {
+        if (!confirm('¿Seguro que deseas cancelar esta reserva?')) return;
+        
+        showLoading(true);
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "delete", id: id })
+            });
+            
+            setTimeout(() => { cargarReservas(); }, 1200);
+        } catch (error) {
+            alert('Error al eliminar la reserva.');
+            showLoading(false);
+        }
+    }
 
-            for (let i = 0; i < blankSpaces; i++) {
-                grid.appendChild(document.createElement('div'));
-            }
+    function showLoading(show) {
+        loadingState.style.display = show ? 'block' : 'none';
+    }
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const div = document.createElement('div');
-                div.className = 'day';
-                div.innerText = day;
-                
-                const dStr = String(day).padStart(2, '0');
-                const mStr = String(month + 1).padStart(2, '0');
-                const fechaCelda = `${year}-${mStr}-${dStr}`;
+    function formatearFecha(f) {
+        const d = new Date(f);
+        return isNaN(d) ? f : d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
 
-                // Comprobar si el día tiene reservas
-                const tieneReserva = reservas.some(r => {
-                    if (!r.fecha) return false;
-                    const fechaClean = r.fecha.toString().substring(0, 10);
+    cargarReservas();
+</script>
+</body>
+</html>
