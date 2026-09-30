@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CCOO Sanidad - Gestión de Vehículos</title>
-  <!-- Importamos la fuente Roboto para que se vea limpio y moderno -->
   <link href="https://googleapis.com" rel="stylesheet">
   
   <style>
-    /* DISEÑO VISUAL CORPORATIVO (CSS) */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -79,7 +77,6 @@
       border-color: #d32f2f;
     }
 
-    /* Mensajes de Alerta */
     .msg {
       padding: 12px;
       border-radius: 8px;
@@ -169,12 +166,11 @@
 </div>
 
 <script>
-// Tu URL activa de Google Apps Script
+// Nueva URL de Apps Script vinculada correctamente
 const URL_APPS_SCRIPT = "https://google.com";
 
 let listaReservas = [];
 
-// Cargar estado inicial al abrir la web
 window.onload = function() {
   fetch(URL_APPS_SCRIPT)
     .then(response => response.json())
@@ -184,7 +180,6 @@ window.onload = function() {
     .catch(err => console.error("Error al sincronizar datos iniciales:", err));
 };
 
-// Comprobación en tiempo real para evitar solapamientos
 function verificarDisponibilidad() {
   const vehiculo = document.getElementById("selectVehiculo").value;
   const fecha = document.getElementById("inputFecha").value;
@@ -202,7 +197,7 @@ function verificarDisponibilidad() {
   );
 
   if (yaReservado) {
-    mensajeError.style.style.display = "block";
+    mensajeError.style.display = "block";
     btnConfirmar.disabled = true;
   } else {
     mensajeError.style.display = "none";
@@ -210,7 +205,6 @@ function verificarDisponibilidad() {
   }
 }
 
-// Envío de la reserva procesada como JSON
 function enviarReserva() {
   const solicitante = document.getElementById("inputSolicitante").value.trim();
   if(!solicitante) {
@@ -238,7 +232,6 @@ function enviarReserva() {
     listaReservas.push(datosReserva);
     verificarDisponibilidad();
 
-    // Limpiar campo de texto tras el éxito
     document.getElementById("inputSolicitante").value = "";
     
     setTimeout(() => { msgExito.style.display = "none"; }, 4000);
