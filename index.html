@@ -8,119 +8,157 @@
   
   <style>
     /* DISEÑO VISUAL CORPORATIVO */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Roboto', sans-serif;
-    }
-
-    body {
-      background-color: #f5f5f7;
-      color: #333;
-      display: flex;
-      justify-content: center;
-      padding: 20px 10px;
-    }
-
-    .container {
-      background-color: #ffffff;
-      width: 100%;
-      max-width: 450px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      padding: 24px;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-      border-bottom: 3px solid #d32f2f;
-      padding-bottom: 12px;
-    }
-
-    .header h1 {
-      color: #d32f2f;
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .header p {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      font-weight: 500;
-      font-size: 14px;
-      margin-bottom: 8px;
-      color: #444;
-    }
-
-    input[type="text"], input[type="date"], select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-      background-color: #fff;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, select:focus {
-      border-color: #d32f2f;
-    }
-
-    .msg {
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 16px;
-      display: none;
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Roboto', sans-serif; 
     }
     
-    #mensajeError {
-      background-color: #ffebee;
-      color: #c62828;
-      border: 1px solid #ffcdd2;
+    body { 
+      background-color: #f5f5f7; 
+      color: #333; 
+      display: flex; 
+      justify-content: center; 
+      padding: 20px 10px; 
     }
-
-    #mensajeExito {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #c8e6c9;
-      text-align: center;
+    
+    .container { 
+      background-color: #ffffff; 
+      width: 100%; 
+      max-width: 450px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+      padding: 24px; 
     }
-
-    .btn-submit {
-      width: 100%;
-      background-color: #d32f2f;
-      color: white;
-      border: none;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: 500;
-      border-radius: 8px;
-      cursor: pointer;
+    
+    .header { 
+      text-align: center; 
+      margin-bottom: 24px; 
+      border-bottom: 3px solid #d32f2f; 
+      padding-bottom: 12px; 
+    }
+    
+    .header h1 { 
+      color: #d32f2f; 
+      font-size: 26px; 
+      font-weight: 700; 
+      margin-bottom: 4px; 
+    }
+    
+    .header p { 
+      color: #666; 
+      font-size: 14px; 
+    }
+    
+    .form-group { 
+      margin-bottom: 18px; 
+    }
+    
+    label { 
+      display: block; 
+      font-weight: 500; 
+      font-size: 14px; 
+      margin-bottom: 8px; 
+      color: #444; 
+    }
+    
+    input[type="text"], input[type="date"], select { 
+      width: 100%; 
+      padding: 12px; 
+      border: 1px solid #ccc; 
+      border-radius: 8px; 
+      font-size: 15px; 
+      outline: none; 
+      transition: border-color 0.2s;
+    }
+    
+    input:focus, select:focus { 
+      border-color: #d32f2f; 
+    }
+    
+    .msg { 
+      padding: 12px; 
+      border-radius: 8px; 
+      font-size: 14px; 
+      font-weight: 500; 
+      margin-bottom: 16px; 
+      display: none; 
+    }
+    
+    #mensajeError { 
+      background-color: #ffebee; 
+      color: #c62828; 
+      border: 1px solid #ffcdd2; 
+    }
+    
+    #mensajeExito { 
+      background-color: #e8f5e9; 
+      color: #2e7d32; 
+      border: 1px solid #c8e6c9; 
+      text-align: center; 
+    }
+    
+    .btn-submit { 
+      width: 100%; 
+      background-color: #d32f2f; 
+      color: white; 
+      border: none; 
+      padding: 14px; 
+      font-size: 16px; 
+      font-weight: 500; 
+      border-radius: 8px; 
+      cursor: pointer; 
       transition: background-color 0.2s;
     }
-
+    
     .btn-submit:hover {
       background-color: #b71c1c;
     }
-
-    .btn-submit:disabled {
-      background-color: #e0e0e0;
-      color: #9e9e9e;
-      cursor: not-allowed;
+    
+    .btn-submit:disabled { 
+      background-color: #e0e0e0; 
+      color: #9e9e9e; 
+      cursor: not-allowed; 
+    }
+    
+    /* Sección Agenda Inferior */
+    .agenda-seccion { 
+      margin-top: 30px; 
+      border-top: 1px solid #eee; 
+      padding-top: 20px; 
+    }
+    
+    .agenda-seccion h2 { 
+      font-size: 18px; 
+      color: #444; 
+      margin-bottom: 15px; 
+    }
+    
+    .reserva-card { 
+      background: #f9f9f9; 
+      border-left: 4px solid #d32f2f; 
+      padding: 12px; 
+      border-radius: 6px; 
+      margin-bottom: 10px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    
+    .reserva-info p { 
+      font-size: 14px; 
+      margin-bottom: 2px; 
+    }
+    
+    .reserva-info .car-title { 
+      font-weight: bold; 
+      color: #222; 
+    }
+    
+    .reserva-info .solicitante-name { 
+      color: #666; 
+      font-size: 13px; 
     }
   </style>
 </head>
@@ -132,7 +170,7 @@
     <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
   </div>
 
-  <!-- Formulario de Entrada -->
+  <!-- Formulario Principal -->
   <div class="form-group">
     <label for="selectVehiculo">Seleccionar Vehículo</label>
     <select id="selectVehiculo" onchange="verificarDisponibilidad()">
@@ -159,30 +197,42 @@
     </select>
   </div>
 
-  <!-- Gestión Dinámica de Notificaciones -->
+  <!-- Contenedores de Estado -->
   <div id="mensajeError" class="msg">⚠ Este vehículo ya está reservado en esa fecha y franja horaria.</div>
   <div id="mensajeExito" class="msg">¡Reserva realizada con éxito!</div>
 
   <button id="btnConfirmar" class="btn-submit" onclick="enviarReserva()">Confirmar Reserva</button>
+
+  <!-- Panel de Reservas Activas -->
+  <div class="agenda-seccion">
+    <h2>Agenda de Reservas Activas</h2>
+    <div id="listaReservasContenedor">
+      <!-- Se rellenará dinámicamente con JavaScript -->
+    </div>
+  </div>
 </div>
 
 <script>
-// URL de producción vinculada correctamente
-const URL_APPS_SCRIPT = "https://google.com";
+// Nueva URL del despliegue integrada correctamente
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbxs5hIflhT3o57JG0PAdt-diLKKeByS1OVTcJq_dv4g66wqtpJqsayhab2GlHOE97W4JQ/exec";
 
 let listaReservas = [];
 
-// Sincronización de base de datos local al arrancar la App Web
-window.onload = function() {
+// Consulta y descarga el historial actualizado desde Sheets
+function cargarReservas() {
   fetch(URL_APPS_SCRIPT)
     .then(response => response.json())
     .then(data => {
       listaReservas = data;
+      renderizarAgenda();
+      verificarDisponibilidad();
     })
     .catch(err => console.error("Error al sincronizar base de datos:", err));
-};
+}
 
-// Validación en cliente contra duplicados en tiempo real
+window.onload = cargarReservas;
+
+// Valida colisiones de horarios en tiempo real
 function verificarDisponibilidad() {
   const vehiculo = document.getElementById("selectVehiculo").value;
   const fecha = document.getElementById("inputFecha").value;
@@ -208,10 +258,39 @@ function verificarDisponibilidad() {
   }
 }
 
-// Envío seguro de datos eludiendo bloqueos CORS con text/plain
+// Dibuja en la interfaz las tarjetas de reservas activas
+function renderizarAgenda() {
+  const contenedor = document.getElementById("listaReservasContenedor");
+  contenedor.innerHTML = "";
+  
+  if (listaReservas.length === 0) {
+    contenedor.innerHTML = "<p style='color:#888; font-size:14px;'>No hay reservas activas en este momento.</p>";
+    return;
+  }
+
+  listaReservas.forEach(reserva => {
+    const card = document.createElement("div");
+    card.className = "reserva-card";
+    
+    // Convierte YYYY-MM-DD al formato legible DD/MM/YYYY
+    const partesFecha = reserva.fecha.split("-");
+    const fechaLimpia = partesFecha.length === 3 ? `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}` : reserva.fecha;
+
+    card.innerHTML = `
+      <div class="reserva-info">
+        <p class="car-title">${reserva.vehiculo}</p>
+        <p class="solicitante-name">Por: ${reserva.solicitante}</p>
+        <p style="font-size:12px; color:#555; margin-top: 4px;">📅 ${fechaLimpia} — ⏰ ${reserva.franjaHoraria}</p>
+      </div>
+    `;
+    contenedor.appendChild(card);
+  });
+}
+
+// Envía la solicitud empaquetada como texto plano para saltar restricciones CORS
 function enviarReserva() {
   const solicitante = document.getElementById("inputSolicitante").value.trim();
-  if(!solicitante) {
+  if (!solicitante) {
     alert("Por favor, introduce el nombre del solicitante.");
     return;
   }
@@ -223,7 +302,9 @@ function enviarReserva() {
     franjaHoraria: document.getElementById("selectFranja").value
   };
 
-  // Se envía estructurado como texto plano para evitar que el navegador anule el cuerpo JSON
+  // Ocultamos el aviso de error previo si existiera
+  document.getElementById("mensajeError").style.display = "none";
+
   fetch(URL_APPS_SCRIPT, {
     method: "POST",
     mode: "no-cors", 
@@ -234,21 +315,20 @@ function enviarReserva() {
     const msgExito = document.getElementById("mensajeExito");
     msgExito.style.display = "block";
     
-    // Almacenamos temporalmente en la caché de la interfaz para evitar re-reservas inmediatas
-    listaReservas.push(datosReserva);
-    verificarDisponibilidad();
-
-    // Limpieza de interfaz del formulario
+    // Resetea el input del solicitante
     document.getElementById("inputSolicitante").value = "";
     
-    setTimeout(() => { msgExito.style.display = "none"; }, 4000);
+    // Sincroniza limpiamente descargando de nuevo el mapa de Sheets actualizado
+    setTimeout(() => { 
+      msgExito.style.display = "none";
+      cargarReservas();
+    }, 1500);
   })
   .catch(error => {
-    console.error("Error crítico de transferencia:", error);
-    alert("No se pudo establecer conexión con el servidor.");
+    console.error("Error en la transferencia de datos:", error);
+    alert("No se pudo establecer comunicación estable con el servidor.");
   });
 }
 </script>
-
 </body>
 </html>
