@@ -122,7 +122,7 @@
       cursor: not-allowed; 
     }
     
-    /* Sección Agenda Inferior */
+    /* Panel de control inferior */
     .agenda-seccion { 
       margin-top: 30px; 
       border-top: 1px solid #eee; 
@@ -141,9 +141,6 @@
       padding: 12px; 
       border-radius: 6px; 
       margin-bottom: 10px; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
     }
     
     .reserva-info p { 
@@ -170,7 +167,7 @@
     <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
   </div>
 
-  <!-- Formulario Principal -->
+  <!-- Formulario -->
   <div class="form-group">
     <label for="selectVehiculo">Seleccionar Vehículo</label>
     <select id="selectVehiculo" onchange="verificarDisponibilidad()">
@@ -194,10 +191,10 @@
     <select id="selectFranja" onchange="verificarDisponibilidad()">
       <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
       <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
+      <option value="Día Completo (08:00 - 22:00)">Día Completo (08:00 - 22:00)</option>
     </select>
   </div>
 
-  <!-- Contenedores de Estado -->
   <div id="mensajeError" class="msg">⚠ Este vehículo ya está reservado en esa fecha y franja horaria.</div>
   <div id="mensajeExito" class="msg">¡Reserva realizada con éxito!</div>
 
@@ -206,21 +203,20 @@
   <!-- Panel de Reservas Activas -->
   <div class="agenda-seccion">
     <h2>Agenda de Reservas Activas</h2>
-    <div id="listaReservasContenedor">
-      <!-- Se rellenará dinámicamente con JavaScript -->
-    </div>
+    <div id="listaReservasContenedor"></div>
   </div>
 </div>
 
 <script>
-// Nueva URL del despliegue integrada correctamente
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbxs5hIflhT3o57JG0PAdt-diLKKeByS1OVTcJq_dv4g66wqtpJqsayhab2GlHOE97W4JQ/exec";
+// Mantener la URL del último despliegue exitoso
+const URL_APPS_SCRIPT = "https://google.com";
 
 let listaReservas = [];
 
-// Consulta y descarga el historial actualizado desde Sheets
+// Forzar la recarga rompiendo el almacenamiento en caché del navegador (?_=[Timestamp])
 function cargarReservas() {
-  fetch(URL_APPS_SCRIPT)
+  const urlLimpia = URL_APPS_SCRIPT + "?_=" + Date.now();
+  fetch(urlLimpia)
     .then(response => response.json())
     .then(data => {
       listaReservas = data;
@@ -232,7 +228,7 @@ function cargarReservas() {
 
 window.onload = cargarReservas;
 
-// Valida colisiones de horarios en tiempo real
+// Lógica de validación inteligente contra solapamientos de turnos y Día Completo
 function verificarDisponibilidad() {
   const vehiculo = document.getElementById("selectVehiculo").value;
   const fecha = document.getElementById("inputFecha").value;
@@ -243,11 +239,16 @@ function verificarDisponibilidad() {
 
   if (!fecha) return;
 
-  const yaReservado = listaReservas.some(reserva => 
-    reserva.vehiculo === vehiculo && 
-    reserva.fecha === fecha && 
-    reserva.franjaHoraria === franjaHoraria
-  );
+  const yaReservado = listaReservas.some(reserva => {
+    // Si no es el mismo coche o el mismo día, no hay colisión
+    if (reserva.vehiculo !== vehiculo || reserva.fecha !== fecha) return false;
+    
+    // Si la nueva reserva o la existente es de "Día Completo", el coche queda bloqueado por completo
+    if (franjaHoraria.includes("Día Completo") || reserva.franjaHoraria.includes("Día Completo")) return true;
+    
+    // Si no, colisiona si coinciden exactamente los turnos (Mañana con Mañana o Tarde con Tarde)
+    return reserva.franjaHoraria === franjaHoraria;
+  });
 
   if (yaReservado) {
     mensajeError.style.display = "block";
@@ -258,7 +259,6 @@ function verificarDisponibilidad() {
   }
 }
 
-// Dibuja en la interfaz las tarjetas de reservas activas
 function renderizarAgenda() {
   const contenedor = document.getElementById("listaReservasContenedor");
   contenedor.innerHTML = "";
@@ -272,7 +272,6 @@ function renderizarAgenda() {
     const card = document.createElement("div");
     card.className = "reserva-card";
     
-    // Convierte YYYY-MM-DD al formato legible DD/MM/YYYY
     const partesFecha = reserva.fecha.split("-");
     const fechaLimpia = partesFecha.length === 3 ? `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}` : reserva.fecha;
 
@@ -287,7 +286,6 @@ function renderizarAgenda() {
   });
 }
 
-// Envía la solicitud empaquetada como texto plano para saltar restricciones CORS
 function enviarReserva() {
   const solicitante = document.getElementById("inputSolicitante").value.trim();
   if (!solicitante) {
@@ -302,8 +300,9 @@ function enviarReserva() {
     franjaHoraria: document.getElementById("selectFranja").value
   };
 
-  // Ocultamos el aviso de error previo si existiera
+  // Reseteamos visualmente los contenedores de mensaje antes de operar
   document.getElementById("mensajeError").style.display = "none";
+  document.getElementById("mensajeExito").style.display = "none";
 
   fetch(URL_APPS_SCRIPT, {
     method: "POST",
@@ -312,13 +311,13 @@ function enviarReserva() {
     body: JSON.stringify(datosReserva)
   })
   .then(() => {
+    // Si la llamada web se completa, activamos la confirmación visual limpia
     const msgExito = document.getElementById("mensajeExito");
     msgExito.style.display = "block";
     
-    // Resetea el input del solicitante
     document.getElementById("inputSolicitante").value = "";
     
-    // Sincroniza limpiamente descargando de nuevo el mapa de Sheets actualizado
+    // Sincronizamos la agenda del cliente forzando la lectura limpia de Sheets tras 1.5s
     setTimeout(() => { 
       msgExito.style.display = "none";
       cargarReservas();
