@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f3f4f6;
@@ -31,37 +27,17 @@
             flex-direction: column;
             justify-content: space-between;
         }
-        .content {
-            padding: 24px;
-        }
+        .content { padding: 24px; }
         .header {
             text-align: center;
             margin-bottom: 24px;
             border-bottom: 1px solid #e5e7eb;
             padding-bottom: 16px;
         }
-        .header h1 {
-            color: #dc2626;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        .header p {
-            color: #6b7280;
-            font-size: 12px;
-            margin-top: 4px;
-            font-weight: 500;
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 4px;
-        }
+        .header h1 { color: #dc2626; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+        .header p { color: #6b7280; font-size: 12px; margin-top: 4px; font-weight: 500; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
         input, select {
             width: 100%;
             border: 1px solid #d1d5db;
@@ -71,14 +47,10 @@
             color: #1f2937;
             background-color: #f9fafb;
             outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
         }
         input:focus, select:focus {
             border-color: #dc2626;
             box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
-        }
-        input::placeholder {
-            color: #9ca3af;
         }
         .btn-submit {
             width: 100%;
@@ -92,18 +64,12 @@
             font-size: 15px;
             letter-spacing: 0.5px;
             margin-top: 8px;
-            transition: background-color 0.2s;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        .btn-submit:hover {
-            background-color: #b91c1c;
-        }
-        .btn-submit:disabled {
-            background-color: #fca5a5;
-            cursor: not-allowed;
-        }
+        .btn-submit:hover { background-color: #b91c1c; }
+        .btn-submit:disabled { background-color: #fca5a5; cursor: not-allowed; }
         .agenda-title {
             font-size: 18px;
             font-weight: 700;
@@ -113,11 +79,7 @@
             border-bottom: 1px solid #e5e7eb;
             padding-bottom: 4px;
         }
-        .reservas-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .reservas-list { display: flex; flex-direction: column; gap: 12px; }
         .reserva-card {
             display: flex;
             justify-content: space-between;
@@ -129,35 +91,10 @@
             background-color: #ffffff;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
-        .reserva-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .reserva-info h4 {
-            font-weight: 700;
-            color: #1f2937;
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .reserva-info p {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 2px;
-        }
-        .reserva-info .meta-date {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-top: 2px;
-        }
-        .no-data {
-            font-size: 14px;
-            color: #9ca3af;
-            font-style: italic;
-            text-align: center;
-            padding: 16px 0;
-        }
+        .reserva-info h4 { font-weight: 700; color: #1f2937; font-size: 14px; }
+        .reserva-info p { font-size: 12px; color: #6b7280; margin-top: 2px; }
+        .reserva-info .meta-date { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+        .no-data { font-size: 14px; color: #9ca3af; font-style: italic; text-align: center; padding: 16px 0; }
         .footer {
             border-top: 1px solid #e5e7eb;
             background-color: #f9fafb;
@@ -234,20 +171,24 @@
         const listaReservas = document.getElementById('listaReservas');
         const btnEnviar = document.getElementById('btnEnviar');
 
-        async function cargarReservas() {
-            try {
-                // Forzar limpieza de caché del navegador agregando un timestamp al final de la petición
-                const respuesta = await fetch(`${WEB_APP_URL}?t=${new Date().getTime()}`, {
-                    method: 'GET',
-                    redirect: 'follow'
-                });
-                reservas = await respuesta.json();
-                actualizarAgenda();
-            } catch (error) {
-                console.error("Error cargando datos:", error);
-                listaReservas.innerHTML = '<p class="no-data" style="color: #ef4444;">Error al recibir reservas desde la nube.</p>';
-            }
+        // Función JSONP: Elimina las restricciones de carga del navegador por completo
+        function cargarReservas() {
+            // Eliminar scripts JSONP antiguos si existen
+            const antiguoScript = document.getElementById('jsonpScript');
+            if (antiguoScript) antiguoScript.remove();
+
+            const script = document.createElement('script');
+            script.id = 'jsonpScript';
+            // Le pedimos a Google que envíe los datos directamente a la función global 'procesarReservas'
+            script.src = `${WEB_APP_URL}?callback=procesarReservas&t=${new Date().getTime()}`;
+            document.body.appendChild(script);
         }
+
+        // Esta función se ejecuta automáticamente cuando Google responde
+        window.procesarReservas = function(datos) {
+            reservas = datos;
+            actualizarAgenda();
+        };
 
         function actualizarAgenda() {
             listaReservas.innerHTML = '';
@@ -257,16 +198,14 @@
             }
 
             reservas.forEach((reserva) => {
-                let fechaFormateada = reserva.fecha || "Sin fecha";
-                let turnoLimpio = (reserva.turno || "Mañana").split(' (')[0];
-
+                let turnoLimpio = reserva.turno.split(' (')[0];
                 const item = document.createElement('div');
                 item.className = "reserva-card";
                 item.innerHTML = `
                     <div class="reserva-info">
                         <h4>${reserva.vehiculo}</h4>
                         <p><b>Por:</b> ${reserva.solicitante}</p>
-                        <div class="meta-date">📅 ${fechaFormateada} | 🕒 ${turnoLimpio}</div>
+                        <div class="meta-date">📅 ${reserva.fecha} | 🕒 ${turnoLimpio}</div>
                     </div>
                 `;
                 listaReservas.appendChild(item);
@@ -281,5 +220,28 @@
             const fecha = document.getElementById('fecha').value;
             const turno = document.getElementById('turno').value;
 
-            // Validación local reactiva antes de emitir a Sheets
             const conflictoLocal = reservas.some(r => {
+                if (r.vehiculo === vehiculo && r.fecha === fecha) {
+                    if (r.turno.includes("Día Completo") || turno.includes("Día Completo") || r.turno === turno) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+            if (conflictoLocal) {
+                alert(`⚠️ Conflicto: El vehículo "${vehiculo}" ya está asignado para este turno.`);
+                return;
+            }
+
+            btnEnviar.disabled = true;
+            btnEnviar.innerText = "Guardando en Sheets...";
+
+            try {
+                const respuesta = await fetch(WEB_APP_URL, {
+                    redirect: "follow", 
+                    method: "POST",
+                    body: JSON.stringify({ vehiculo, solicitante, fecha, turno }),
+                    headers: { "Content-Type": "text/plain" } 
+                });
+                
