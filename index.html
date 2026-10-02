@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
     <style>
-        /* CSS Puro Integrado: Garantiza el diseño sin dependencias externas */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -176,13 +175,11 @@
 
     <div class="container">
         <div class="content">
-            <!-- Encabezado -->
             <div class="header">
                 <h1>CCOO Sanidad</h1>
                 <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
             </div>
 
-            <!-- Formulario de Reserva -->
             <form id="formReserva">
                 <div class="form-group">
                     <label>Seleccionar Vehículo</label>
@@ -211,12 +208,9 @@
                     </select>
                 </div>
 
-                <button id="btnEnviar" type="submit" class="btn-submit">
-                    Confirmar Reserva
-                </button>
+                <button id="btnEnviar" type="submit" class="btn-submit">Confirmar Reserva</button>
             </form>
 
-            <!-- Sección Agenda de Reservas -->
             <div>
                 <h2 class="agenda-title">Agenda de Reservas Activas</h2>
                 <div id="listaReservas" class="reservas-list">
@@ -240,44 +234,31 @@
         const listaReservas = document.getElementById('listaReservas');
         const btnEnviar = document.getElementById('btnEnviar');
 
-        // CORRECCIÓN CLAVE: Petición compatible con redirecciones de Google Apps Script sin bloqueo CORS
         async function cargarReservas() {
             try {
-                const respuesta = await fetch(WEB_APP_URL, {
+                // Forzar limpieza de caché del navegador agregando un timestamp al final de la petición
+                const respuesta = await fetch(`${WEB_APP_URL}?t=${new Date().getTime()}`, {
                     method: 'GET',
-                    mode: 'cors',
                     redirect: 'follow'
                 });
                 reservas = await respuesta.json();
                 actualizarAgenda();
             } catch (error) {
-                console.error(error);
-                listaReservas.innerHTML = '<p class="no-data" style="color: #ef4444;">Error de sincronización con la nube.</p>';
+                console.error("Error cargando datos:", error);
+                listaReservas.innerHTML = '<p class="no-data" style="color: #ef4444;">Error al recibir reservas desde la nube.</p>';
             }
         }
 
         function actualizarAgenda() {
             listaReservas.innerHTML = '';
-            if (reservas.length === 0) {
+            if (!Array.isArray(reservas) || reservas.length === 0) {
                 listaReservas.innerHTML = '<p class="no-data">No hay reservas activas en la nube.</p>';
                 return;
             }
 
             reservas.forEach((reserva) => {
-                let fechaFormateada = reserva.fecha;
-                if(reserva.fecha.includes("T")) {
-                    fechaFormateada = reserva.fecha.split("T")[0];
-                }
-
-                // Ajustar visualización del formato de fecha de texto plano de Google
-                if(fechaFormateada.slice(0,4).includes("-") === false && fechaFormateada.length > 10){
-                    const d = new Date(reserva.fecha);
-                    if(!isNaN(d)) {
-                        fechaFormateada = d.toISOString().split('T')[0];
-                    }
-                }
-
-                let turnoLimpio = reserva.turno.split(' (')[0];
+                let fechaFormateada = reserva.fecha || "Sin fecha";
+                let turnoLimpio = (reserva.turno || "Mañana").split(' (')[0];
 
                 const item = document.createElement('div');
                 item.className = "reserva-card";
@@ -285,3 +266,20 @@
                     <div class="reserva-info">
                         <h4>${reserva.vehiculo}</h4>
                         <p><b>Por:</b> ${reserva.solicitante}</p>
+                        <div class="meta-date">📅 ${fechaFormateada} | 🕒 ${turnoLimpio}</div>
+                    </div>
+                `;
+                listaReservas.appendChild(item);
+            });
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const vehiculo = document.getElementById('vehiculo').value;
+            const solicitante = document.getElementById('solicitante').value.trim();
+            const fecha = document.getElementById('fecha').value;
+            const turno = document.getElementById('turno').value;
+
+            // Validación local reactiva antes de emitir a Sheets
+            const conflictoLocal = reservas.some(r => {
