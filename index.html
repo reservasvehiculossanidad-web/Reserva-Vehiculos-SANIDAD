@@ -4,76 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
-    <script src="https://tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cloudflare.com">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* CSS Puro: Garantiza el diseño exacto sin depender de librerías externas */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px;
+        }
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .content {
+            padding: 24px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 16px;
+        }
+        .header h1 {
+            color: #dc2626;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .header p {
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        input, select {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            color: #1f2937;
+            background-color: #f9fafb;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+        }
+        input::placeholder {
+            color: #9ca3af;
+        }
+        .btn-submit {
+            width: 100%;
+            background-color: #dc2626;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-submit:hover {
+            background-color: #b91c1c;
+        }
+        .btn-submit:disabled {
+            background-color: #fca5a5;
+            cursor: not-allowed;
+        }
+        .agenda-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-top: 32px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 4px;
+        }
+        .reservas-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .reserva-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid #dc2626;
+            border-radius: 0 8px 8px 0;
+            padding: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .reserva-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .reserva-info h4 {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .reserva-info p {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        .reserva-info .meta-date {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .no-data {
+            font-size: 14px;
+            color: #9ca3af;
+            font-style: italic;
+            text-align: center;
+            padding: 16px 0;
+        }
+        .footer {
+            border-top: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            padding: 12px;
+            display: flex;
+            justify-content: space-around;
+            color: #9ca3af;
+        }
+        .footer-dot {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #9ca3af;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+        .footer-square {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #9ca3af;
+            border-radius: 3px;
+            opacity: 0.5;
+        }
+        .footer-arrow {
+            width: 10px;
+            height: 14px;
+            border-left: 2px solid #9ca3af;
+            border-bottom: 2px solid #9ca3af;
+            transform: rotate(45deg);
+            opacity: 0.5;
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex justify-center items-start p-4">
+<body>
 
-    <div class="w-full max-w-md bg-white shadow-md rounded-lg overflow-hidden border border-gray-200 min-h-[90vh] flex flex-col justify-between">
-        
-        <div class="p-6">
+    <div class="container">
+        <div class="content">
             <!-- Encabezado -->
-            <div class="text-center mb-6 border-b pb-4">
-                <h1 class="text-2xl font-bold text-red-600 tracking-wide">CCOO Sanidad</h1>
-                <p class="text-xs text-gray-500 mt-1 font-medium">Gestión de Vehículos de la Flota en Tiempo Real</p>
+            <div class="header">
+                <h1>CCOO Sanidad</h1>
+                <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
             </div>
 
             <!-- Formulario de Reserva -->
-            <form id="formReserva" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Seleccionar Vehículo</label>
-                    <select id="vehiculo" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none" required>
+            <form id="formReserva">
+                <div class="form-group">
+                    <label>Seleccionar Vehículo</label>
+                    <select id="vehiculo" required>
                         <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
                         <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (7 Plazas)</option>
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Solicitante / Sección</label>
-                    <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none" required>
+                <div class="form-group">
+                    <label>Nombre del Solicitante / Sección</label>
+                    <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha</label>
-                    <input type="date" id="fecha" class="w-full border border-gray-300 rounded-lg p-2.5 text-gray-700 focus:ring-2 focus:ring-red-500 focus:outline-none" required>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="fecha" required>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Turno Horario</label>
-                    <select id="turno" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none" required>
+                <div class="form-group">
+                    <label>Turno Horario</label>
+                    <select id="turno" required>
                         <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
                         <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
                         <option value="Día Completo (08:00 - 22:00)">Día Completo (08:00 - 22:00)</option>
                     </select>
                 </div>
 
-                <button id="btnEnviar" type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 tracking-wide mt-2 flex justify-center items-center">
+                <button id="btnEnviar" type="submit" class="btn-submit">
                     Confirmar Reserva
                 </button>
             </form>
 
             <!-- Sección Agenda de Reservas -->
-            <div class="mt-8">
-                <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-1">Agenda de Reservas Activas</h2>
-                <div id="listaReservas" class="space-y-3">
-                    <p class="text-sm text-gray-400 italic text-center py-4">Cargando agenda desde Google Sheets...</p>
+            <div>
+                <h2 class="agenda-title">Agenda de Reservas Activas</h2>
+                <div id="listaReservas" class="reservas-list">
+                    <p class="no-data">Cargando agenda desde Google Sheets...</p>
                 </div>
             </div>
         </div>
 
-        <div class="border-t bg-gray-50 p-3 flex justify-around text-gray-500 text-xl">
-            <i class="fa-solid fa-square-minus opacity-40"></i>
-            <i class="fa-regular fa-circle opacity-40"></i>
-            <i class="fa-solid fa-chevron-left opacity-40"></i>
+        <!-- Barra inferior simulada -->
+        <div class="footer">
+            <div class="footer-square"></div>
+            <div class="footer-dot"></div>
+            <div class="footer-arrow"></div>
         </div>
     </div>
 
     <script>
-        // URL vinculada de tu Google Apps Script
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwtFSpft1JTR5czvqFw43PDybegpR8KNneGNBJVLC8M3Q4_dzQYZ-zVF3Pgwl0Bha9r3A/exec";
+        // Tu URL de Google Apps Script vinculada
+        const WEB_APP_URL = "https://google.com";
 
         let reservas = [];
         const form = document.getElementById('formReserva');
@@ -87,7 +268,7 @@
                 reservas = await respuesta.json();
                 actualizarAgenda();
             } catch (error) {
-                listaReservas.innerHTML = '<p class="text-sm text-red-500 text-center py-4">Error al conectar con Google Sheets.</p>';
+                listaReservas.innerHTML = '<p class="no-data" style="color: #ef4444;">Error al conectar con Google Sheets.</p>';
             }
         }
 
@@ -95,7 +276,7 @@
         function actualizarAgenda() {
             listaReservas.innerHTML = '';
             if (reservas.length === 0) {
-                listaReservas.innerHTML = '<p class="text-sm text-gray-400 italic text-center py-4">No hay reservas activas en la nube.</p>';
+                listaReservas.innerHTML = '<p class="no-data">No hay reservas activas en la nube.</p>';
                 return;
             }
 
@@ -103,75 +284,19 @@
                 let fechaFormateada = reserva.fecha;
                 if(reserva.fecha.includes("T")) fechaFormateada = reserva.fecha.split("T")[0];
 
+                // Limpiar el texto del turno para la visualización compacta
+                let turnoLimpio = reserva.turno.split(' (')[0];
+
                 const item = document.createElement('div');
-                item.className = "flex items-center justify-between border border-gray-200 border-l-4 border-l-red-600 rounded-r-lg p-3 bg-white shadow-sm";
+                item.className = "reserva-card";
                 item.innerHTML = `
-                    <div class="flex-1 min-w-0">
-                        <h4 class="font-bold text-gray-800 text-sm truncate">${reserva.vehiculo}</h4>
-                        <p class="text-xs text-gray-500 mt-0.5"><b>Por:</b> ${reserva.solicitante}</p>
-                        <p class="text-[11px] text-gray-400 mt-0.5">📅 ${fechaFormateada} | 🕒 ${reserva.turno.split(' (')[0]}</p>
+                    <div class="reserva-info">
+                        <h4>${reserva.vehiculo}</h4>
+                        <p><b>Por:</b> ${reserva.solicitante}</p>
+                        <div class="meta-date">📅 ${fechaFormateada} | 🕒 ${turnoLimpio}</div>
                     </div>
                 `;
                 listaReservas.appendChild(item);
             });
         }
 
-        // Envía el JSON mediante POST a Google Sheets pasando por el filtro de seguridad
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const vehiculo = document.getElementById('vehiculo').value;
-            const solicitante = document.getElementById('solicitante').value.trim();
-            const fecha = document.getElementById('fecha').value;
-            const turno = document.getElementById('turno').value;
-
-            // Validación local preventiva antes de subir
-            const conflictoLocal = reservas.some(r => {
-                let rFecha = r.fecha.includes("T") ? r.fecha.split("T")[0] : r.fecha;
-                if (r.vehiculo === vehiculo && rFecha === fecha) {
-                    if (r.turno.includes("Día Completo") || turno.includes("Día Completo") || r.turno === turno) {
-                        return true;
-                    }
-                }
-                return false;
-            });
-
-            if (conflictoLocal) {
-                alert(`⚠️ Conflicto: El vehículo "${vehiculo}" ya está asignado para este turno.`);
-                return;
-            }
-
-            btnEnviar.disabled = true;
-            btnEnviar.innerText = "Guardando en Sheets...";
-
-            const nuevaReserva = { vehiculo, solicitante, fecha, turno };
-
-            try {
-                const respuesta = await fetch(WEB_APP_URL, {
-                    redirect: "follow", 
-                    method: "POST",
-                    body: JSON.stringify(nuevaReserva),
-                    headers: { "Content-Type": "text/plain" } 
-                });
-                
-                const resultado = await respuesta.json();
-                
-                if(resultado.status === "success") {
-                    form.reset();
-                    await cargarReservas(); 
-                } else {
-                    alert("Error en el servidor de Google Sheets: " + resultado.message);
-                }
-            } catch (error) {
-                alert("Error de conexión al guardar los datos.");
-            } finally {
-                btnEnviar.disabled = false;
-                btnEnviar.innerText = "Confirmar Reserva";
-            }
-        });
-
-        // Inicializar la carga al abrir la aplicación
-        cargarReservas();
-    </script>
-</body>
-</html>
