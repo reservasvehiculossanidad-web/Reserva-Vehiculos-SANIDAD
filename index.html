@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
     <style>
+        /* CSS Nativo: Garantiza que conserve el aspecto visual solicitado */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -117,12 +118,10 @@
                 <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
             </div>
 
-            <form id="formReserva" method="POST">
-                <input type="hidden" name="redirect_to" id="redirect_to">
-
+            <form id="formReserva">
                 <div class="form-group">
                     <label>Seleccionar Vehículo</label>
-                    <select name="vehiculo" id="vehiculo" required>
+                    <select id="vehiculo" required>
                         <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
                         <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (7 Plazas)</option>
                     </select>
@@ -130,17 +129,17 @@
 
                 <div class="form-group">
                     <label>Nombre del Solicitante / Sección</label>
-                    <input type="text" name="solicitante" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
+                    <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
                 </div>
 
                 <div class="form-group">
                     <label>Fecha</label>
-                    <input type="date" id="fecha_input" name="fecha" required>
+                    <input type="date" id="fecha" required>
                 </div>
 
                 <div class="form-group">
                     <label>Turno Horario</label>
-                    <select name="turno" id="turno" required>
+                    <select id="turno" required>
                         <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
                         <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
                         <option value="Día Completo (08:00 - 22:00)">Día Completo (08:00 - 22:00)</option>
@@ -166,57 +165,31 @@
     </div>
 
     <script>
-        // Nueva URL de producción vinculada correctamente
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwa7BtwpADxY8cWkfFqCoNAvoRwOvj7wTh6ndriKfk2BlaQmRyUDAitWcN6Y7unZUhuug/exec";
+        // Tu URL de producción de Google Apps Script
+        const WEB_APP_URL = "https://google.com";
 
         let reservas = [];
         const form = document.getElementById('formReserva');
         const listaReservas = document.getElementById('listaReservas');
         const btnEnviar = document.getElementById('btnEnviar');
 
-        // Configuración de rutas para redirección post-guardado
-        const urlLimpia = window.location.href.split('?')[0];
-        document.getElementById('redirect_to').value = urlLimpia;
-        form.action = WEB_APP_URL;
-
-        // Comprobación de parámetros de éxito de Google Sheets
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('status') === 'success') {
-            alert("✅ ¡Reserva registrada con éxito!");
-            window.history.replaceState({}, document.title, urlLimpia);
-        } else if (urlParams.get('status') === 'conflict') {
-            alert("⚠️ Conflicto: Ese vehículo ya está reservado para esa fecha/turno.");
-            window.history.replaceState({}, document.title, urlLimpia);
-        }
-
-        // Petición remota JSONP
+        // LECTURA JSONP DEFINITIVA: Consigue los datos saltándose cualquier restricción CORS
         function cargarReservas() {
-            const scriptAntiguo = document.getElementById('jsonpScript');
-            if (scriptAntiguo) scriptAntiguo.remove();
+            const antiguoScript = document.getElementById('jsonpScript');
+            if (antiguoScript) antiguoScript.remove();
 
             const script = document.createElement('script');
             script.id = 'jsonpScript';
+            // Obligamos a llamar a la función global mapeada abajo
             script.src = `${WEB_APP_URL}?callback=procesarReservas&t=${new Date().getTime()}`;
             document.body.appendChild(script);
         }
 
-        // Procesa la respuesta de Google Sheets
+        // Se ejecuta de inmediato cuando Google responde el JSONP
         window.procesarReservas = function(datos) {
             reservas = datos;
             actualizarAgenda();
         };
-
-        // Formatea la fecha de Google a un formato unificado de tipo YYYY-MM-DD
-        function limpiarFecha(fechaRaw) {
-            if (!fechaRaw) return "";
-            if (fechaRaw.includes("GMT") || isNaN(fechaRaw) && Array.isArray(fechaRaw.split(" "))) {
-                const d = new Date(fechaRaw);
-                if (!isNaN(d.getTime())) {
-                    return d.toISOString().split('T')[0];
-                }
-            }
-            return fechaRaw.split("T")[0];
-        }
 
         function actualizarAgenda() {
             listaReservas.innerHTML = '';
@@ -227,19 +200,46 @@
 
             reservas.forEach((reserva) => {
                 let turnoLimpio = (reserva.turno || "").split(' (')[0];
-                let fechaLimpia = limpiarFecha(reserva.fecha);
-
                 const item = document.createElement('div');
                 item.className = "reserva-card";
                 item.innerHTML = `
                     <div class="reserva-info">
                         <h4>${reserva.vehiculo}</h4>
                         <p><b>Por:</b> ${reserva.solicitante}</p>
-                        <div class="meta-date">📅 ${fechaLimpia} | 🕒 ${turnoLimpio}</div>
+                        <div class="meta-date">📅 ${reserva.fecha} | 🕒 ${turnoLimpio}</div>
                     </div>
                 `;
                 listaReservas.appendChild(item);
             });
         }
 
-        // Filtro preventivo del lado del cliente
+        // ESCRITURA BLINDADA: Evita el bloqueo enviando en formato plano compatible con Google
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const vehiculo = document.getElementById('vehiculo').value;
+            const solicitante = document.getElementById('solicitante').value.trim();
+            const fecha = document.getElementById('fecha').value;
+            const turno = document.getElementById('turno').value;
+
+            // Validación local anti-duplicados previa
+            const conflicto = reservas.some(r => {
+                if (r.vehiculo === vehiculo && r.fecha === fecha) {
+                    if (r.turno.includes("Día Completo") || turno.includes("Día Completo") || r.turno === turno) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+            if (conflicto) {
+                alert(`⚠️ Conflicto: El vehículo ya está ocupado para esa fecha o turno.`);
+                return;
+            }
+
+            btnEnviar.disabled = true;
+            btnEnviar.innerText = "Guardando en Sheets...";
+
+            const paqueteDatos = { vehiculo, solicitante, fecha, turno };
+
+            try {
