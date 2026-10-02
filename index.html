@@ -117,10 +117,12 @@
                 <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
             </div>
 
-            <form id="formReserva">
+            <form id="formReserva" method="POST">
+                <input type="hidden" name="redirect_to" id="redirect_to">
+
                 <div class="form-group">
                     <label>Seleccionar Vehículo</label>
-                    <select id="vehiculo" required>
+                    <select name="vehiculo" id="vehiculo" required>
                         <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
                         <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (7 Plazas)</option>
                     </select>
@@ -128,17 +130,17 @@
 
                 <div class="form-group">
                     <label>Nombre del Solicitante / Sección</label>
-                    <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
+                    <input type="text" name="solicitante" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
                 </div>
 
                 <div class="form-group">
                     <label>Fecha</label>
-                    <input type="date" id="fecha" required>
+                    <input type="date" id="fecha_input" name="fecha" required>
                 </div>
 
                 <div class="form-group">
                     <label>Turno Horario</label>
-                    <select id="turno" required>
+                    <select name="turno" id="turno" required>
                         <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
                         <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
                         <option value="Día Completo (08:00 - 22:00)">Día Completo (08:00 - 22:00)</option>
@@ -164,31 +166,57 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://google.com";
+        // Nueva URL de producción vinculada correctamente
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwa7BtwpADxY8cWkfFqCoNAvoRwOvj7wTh6ndriKfk2BlaQmRyUDAitWcN6Y7unZUhuug/exec";
 
         let reservas = [];
         const form = document.getElementById('formReserva');
         const listaReservas = document.getElementById('listaReservas');
         const btnEnviar = document.getElementById('btnEnviar');
 
-        // Función JSONP: Elimina las restricciones de carga del navegador por completo
+        // Configuración de rutas para redirección post-guardado
+        const urlLimpia = window.location.href.split('?')[0];
+        document.getElementById('redirect_to').value = urlLimpia;
+        form.action = WEB_APP_URL;
+
+        // Comprobación de parámetros de éxito de Google Sheets
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('status') === 'success') {
+            alert("✅ ¡Reserva registrada con éxito!");
+            window.history.replaceState({}, document.title, urlLimpia);
+        } else if (urlParams.get('status') === 'conflict') {
+            alert("⚠️ Conflicto: Ese vehículo ya está reservado para esa fecha/turno.");
+            window.history.replaceState({}, document.title, urlLimpia);
+        }
+
+        // Petición remota JSONP
         function cargarReservas() {
-            // Eliminar scripts JSONP antiguos si existen
-            const antiguoScript = document.getElementById('jsonpScript');
-            if (antiguoScript) antiguoScript.remove();
+            const scriptAntiguo = document.getElementById('jsonpScript');
+            if (scriptAntiguo) scriptAntiguo.remove();
 
             const script = document.createElement('script');
             script.id = 'jsonpScript';
-            // Le pedimos a Google que envíe los datos directamente a la función global 'procesarReservas'
             script.src = `${WEB_APP_URL}?callback=procesarReservas&t=${new Date().getTime()}`;
             document.body.appendChild(script);
         }
 
-        // Esta función se ejecuta automáticamente cuando Google responde
+        // Procesa la respuesta de Google Sheets
         window.procesarReservas = function(datos) {
             reservas = datos;
             actualizarAgenda();
         };
+
+        // Formatea la fecha de Google a un formato unificado de tipo YYYY-MM-DD
+        function limpiarFecha(fechaRaw) {
+            if (!fechaRaw) return "";
+            if (fechaRaw.includes("GMT") || isNaN(fechaRaw) && Array.isArray(fechaRaw.split(" "))) {
+                const d = new Date(fechaRaw);
+                if (!isNaN(d.getTime())) {
+                    return d.toISOString().split('T')[0];
+                }
+            }
+            return fechaRaw.split("T")[0];
+        }
 
         function actualizarAgenda() {
             listaReservas.innerHTML = '';
@@ -198,50 +226,20 @@
             }
 
             reservas.forEach((reserva) => {
-                let turnoLimpio = reserva.turno.split(' (')[0];
+                let turnoLimpio = (reserva.turno || "").split(' (')[0];
+                let fechaLimpia = limpiarFecha(reserva.fecha);
+
                 const item = document.createElement('div');
                 item.className = "reserva-card";
                 item.innerHTML = `
                     <div class="reserva-info">
                         <h4>${reserva.vehiculo}</h4>
                         <p><b>Por:</b> ${reserva.solicitante}</p>
-                        <div class="meta-date">📅 ${reserva.fecha} | 🕒 ${turnoLimpio}</div>
+                        <div class="meta-date">📅 ${fechaLimpia} | 🕒 ${turnoLimpio}</div>
                     </div>
                 `;
                 listaReservas.appendChild(item);
             });
         }
 
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const vehiculo = document.getElementById('vehiculo').value;
-            const solicitante = document.getElementById('solicitante').value.trim();
-            const fecha = document.getElementById('fecha').value;
-            const turno = document.getElementById('turno').value;
-
-            const conflictoLocal = reservas.some(r => {
-                if (r.vehiculo === vehiculo && r.fecha === fecha) {
-                    if (r.turno.includes("Día Completo") || turno.includes("Día Completo") || r.turno === turno) {
-                        return true;
-                    }
-                }
-                return false;
-            });
-
-            if (conflictoLocal) {
-                alert(`⚠️ Conflicto: El vehículo "${vehiculo}" ya está asignado para este turno.`);
-                return;
-            }
-
-            btnEnviar.disabled = true;
-            btnEnviar.innerText = "Guardando en Sheets...";
-
-            try {
-                const respuesta = await fetch(WEB_APP_URL, {
-                    redirect: "follow", 
-                    method: "POST",
-                    body: JSON.stringify({ vehiculo, solicitante, fecha, turno }),
-                    headers: { "Content-Type": "text/plain" } 
-                });
-                
+        // Filtro preventivo del lado del cliente
