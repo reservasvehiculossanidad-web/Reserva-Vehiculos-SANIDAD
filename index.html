@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCOO Sanidad - Gestión de Vehículos</title>
     <style>
-        /* CSS Puro: Garantiza el diseño exacto sin depender de librerías externas */
+        /* CSS Puro Integrado: Garantiza el diseño sin dependencias externas */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -167,28 +167,9 @@
             justify-content: space-around;
             color: #9ca3af;
         }
-        .footer-dot {
-            width: 14px;
-            height: 14px;
-            border: 2px solid #9ca3af;
-            border-radius: 50%;
-            opacity: 0.5;
-        }
-        .footer-square {
-            width: 14px;
-            height: 14px;
-            border: 2px solid #9ca3af;
-            border-radius: 3px;
-            opacity: 0.5;
-        }
-        .footer-arrow {
-            width: 10px;
-            height: 14px;
-            border-left: 2px solid #9ca3af;
-            border-bottom: 2px solid #9ca3af;
-            transform: rotate(45deg);
-            opacity: 0.5;
-        }
+        .footer-dot { width: 14px; height: 14px; border: 2px solid #9ca3af; border-radius: 50%; opacity: 0.5; }
+        .footer-square { width: 14px; height: 14px; border: 2px solid #9ca3af; border-radius: 3px; opacity: 0.5; }
+        .footer-arrow { width: 10px; height: 14px; border-left: 2px solid #9ca3af; border-bottom: 2px solid #9ca3af; transform: rotate(45deg); opacity: 0.5; }
     </style>
 </head>
 <body>
@@ -244,7 +225,6 @@
             </div>
         </div>
 
-        <!-- Barra inferior simulada -->
         <div class="footer">
             <div class="footer-square"></div>
             <div class="footer-dot"></div>
@@ -253,7 +233,6 @@
     </div>
 
     <script>
-        // Tu URL de Google Apps Script vinculada
         const WEB_APP_URL = "https://google.com";
 
         let reservas = [];
@@ -261,18 +240,22 @@
         const listaReservas = document.getElementById('listaReservas');
         const btnEnviar = document.getElementById('btnEnviar');
 
-        // Función para cargar los datos en JSON desde Google Sheets
+        // CORRECCIÓN CLAVE: Petición compatible con redirecciones de Google Apps Script sin bloqueo CORS
         async function cargarReservas() {
             try {
-                const respuesta = await fetch(WEB_APP_URL);
+                const respuesta = await fetch(WEB_APP_URL, {
+                    method: 'GET',
+                    mode: 'cors',
+                    redirect: 'follow'
+                });
                 reservas = await respuesta.json();
                 actualizarAgenda();
             } catch (error) {
-                listaReservas.innerHTML = '<p class="no-data" style="color: #ef4444;">Error al conectar con Google Sheets.</p>';
+                console.error(error);
+                listaReservas.innerHTML = '<p class="no-data" style="color: #ef4444;">Error de sincronización con la nube.</p>';
             }
         }
 
-        // Dibuja las reservas obtenidas en pantalla
         function actualizarAgenda() {
             listaReservas.innerHTML = '';
             if (reservas.length === 0) {
@@ -282,9 +265,18 @@
 
             reservas.forEach((reserva) => {
                 let fechaFormateada = reserva.fecha;
-                if(reserva.fecha.includes("T")) fechaFormateada = reserva.fecha.split("T")[0];
+                if(reserva.fecha.includes("T")) {
+                    fechaFormateada = reserva.fecha.split("T")[0];
+                }
 
-                // Limpiar el texto del turno para la visualización compacta
+                // Ajustar visualización del formato de fecha de texto plano de Google
+                if(fechaFormateada.slice(0,4).includes("-") === false && fechaFormateada.length > 10){
+                    const d = new Date(reserva.fecha);
+                    if(!isNaN(d)) {
+                        fechaFormateada = d.toISOString().split('T')[0];
+                    }
+                }
+
                 let turnoLimpio = reserva.turno.split(' (')[0];
 
                 const item = document.createElement('div');
@@ -293,10 +285,3 @@
                     <div class="reserva-info">
                         <h4>${reserva.vehiculo}</h4>
                         <p><b>Por:</b> ${reserva.solicitante}</p>
-                        <div class="meta-date">📅 ${fechaFormateada} | 🕒 ${turnoLimpio}</div>
-                    </div>
-                `;
-                listaReservas.appendChild(item);
-            });
-        }
-
