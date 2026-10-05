@@ -3,230 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCOO Sanidad - Gestión de Vehículos</title>
+    <title>CCOO Sanidad - Reserva de Vehículos</title>
     <style>
-        /* CSS Puro integrado: Garantiza el diseño idéntico solicitado */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f4f6;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 16px;
-        }
-        .container {
-            width: 100%;
-            max-width: 440px;
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            min-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .content { padding: 24px; }
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 16px;
-        }
-        .header h1 { color: #dc2626; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
-        .header p { color: #6b7280; font-size: 12px; margin-top: 4px; font-weight: 500; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
-        input, select {
-            width: 100%;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 14px;
-            color: #1f2937;
-            background-color: #f9fafb;
-            outline: none;
-        }
-        input:focus, select:focus {
-            border-color: #dc2626;
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
-        }
-        .btn-submit {
-            width: 100%;
-            background-color: #dc2626;
-            color: #ffffff;
-            font-weight: 700;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            letter-spacing: 0.5px;
-            margin-top: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .btn-submit:hover { background-color: #b91c1c; }
-        .btn-submit:disabled { background-color: #fca5a5; cursor: not-allowed; }
-        .agenda-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1f2937;
-            margin-top: 32px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 4px;
-        }
-        .reservas-list { display: flex; flex-direction: column; gap: 12px; }
-        .reserva-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #e5e7eb;
-            border-left: 4px solid #dc2626;
-            border-radius: 0 8px 8px 0;
-            padding: 12px;
-            background-color: #ffffff;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-        .reserva-info h4 { font-weight: 700; color: #1f2937; font-size: 14px; }
-        .reserva-info p { font-size: 12px; color: #6b7280; margin-top: 2px; }
-        .reserva-info .meta-date { font-size: 11px; color: #9ca3af; margin-top: 2px; }
-        .no-data { font-size: 14px; color: #9ca3af; font-style: italic; text-align: center; padding: 16px 0; }
-        .footer {
-            border-top: 1px solid #e5e7eb;
-            background-color: #f9fafb;
-            padding: 12px;
-            display: flex;
-            justify-content: space-around;
-            color: #9ca3af;
-        }
-        .footer-dot { width: 14px; height: 14px; border: 2px solid #9ca3af; border-radius: 50%; opacity: 0.5; }
-        .footer-square { width: 14px; height: 14px; border: 2px solid #9ca3af; border-radius: 3px; opacity: 0.5; }
-        .footer-arrow { width: 10px; height: 14px; border-left: 2px solid #9ca3af; border-bottom: 2px solid #9ca3af; transform: rotate(45deg); opacity: 0.5; }
+        body { font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 450px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #d32f2f; text-align: center; margin-bottom: 5px; font-size: 24px; }
+        h2 { text-align: center; font-size: 14px; color: #666; margin-top: 0; font-weight: normal; margin-bottom: 25px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; background-color: #fcfcfc; }
+        button { width: 100%; padding: 12px; background-color: #d32f2f; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #b71c1c; }
+        .agenda-title { font-size: 16px; font-weight: bold; margin-top: 30px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .reserva-card { border-left: 5px solid #d32f2f; background: #fff5f5; padding: 12px; margin-top: 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .reserva-card h3 { margin: 0 0 5px 0; font-size: 15px; color: #111; }
+        .reserva-card p { margin: 0; font-size: 13px; color: #555; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="content">
-            <div class="header">
-                <h1>CCOO Sanidad</h1>
-                <p>Gestión de Vehículos de la Flota en Tiempo Real</p>
-            </div>
+<div class="container">
+    <h1>CCOO Sanidad</h1>
+    <h2>Gestión de Vehículos de la Flota en Tiempo Real</h2>
 
-            <!-- ENVIAR POR CANAL TRADICIONAL POST: Blindado contra bloqueos CORS informáticos -->
-            <form id="formReserva" method="POST" action="https://google.com">
-                <!-- Captura automática la ruta de origen para volver aquí tras guardar -->
-                <input type="hidden" name="redirect_to" id="redirect_to">
-
-                <div class="form-group">
-                    <label>Seleccionar Vehículo</label>
-                    <select name="vehiculo" id="vehiculo" required>
-                        <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
-                        <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (7 Plazas)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Nombre del Solicitante / Sección</label>
-                    <input type="text" name="solicitante" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" name="fecha" id="fecha_input" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Turno Horario</label>
-                    <select name="turno" id="turno" required>
-                        <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
-                        <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
-                        <option value="Día Completo (08:00 - 22:00)">Día Completo (08:00 - 22:00)</option>
-                    </select>
-                </div>
-
-                <button id="btnEnviar" type="submit" class="btn-submit">Confirmar Reserva</button>
-            </form>
-
-            <div>
-                <h2 class="agenda-title">Agenda de Reservas Activas</h2>
-                <div id="listaReservas" class="reservas-list">
-                    <p class="no-data">Cargando agenda desde Google Sheets...</p>
-                </div>
-            </div>
+    <form id="formReserva">
+        <div class="form-group">
+            <label>Seleccionar Vehículo</label>
+            <select id="vehiculo" required>
+                <option value="Dacia Sandero (Urbano - 5 Plazas)">Dacia Sandero (Urbano - 5 Plazas)</option>
+                <option value="Seat Alhambra (7 Plazas)">Seat Alhambra (7 Plazas)</option>
+            </select>
         </div>
 
-        <div class="footer">
-            <div class="footer-square"></div>
-            <div class="footer-dot"></div>
-            <div class="footer-arrow"></div>
+        <div class="form-group">
+            <label>Nombre del Solicitante / Sección</label>
+            <input type="text" id="solicitante" placeholder="Ej: Manuel Pérez - Hospital Clínico" required>
         </div>
+
+        <div class="form-group">
+            <label>Fecha</label>
+            <input type="date" id="fecha" required>
+        </div>
+
+        <div class="form-group">
+            <label>Turno Horario</label>
+            <select id="turno" required>
+                <option value="Mañana (08:00 - 15:00)">Mañana (08:00 - 15:00)</option>
+                <option value="Tarde (15:00 - 22:00)">Tarde (15:00 - 22:00)</option>
+                <option value="Día Completo">Día Completo</option>
+            </select>
+        </div>
+
+        <button type="submit">Confirmar Reserva</button>
+    </form>
+
+    <div class="agenda-title">Agenda de Reservas Activas</div>
+    <div id="listaReservas">
+        <!-- Las reservas de la base de datos se cargarán aquí -->
     </div>
+</div>
 
-    <script>
-        const WEB_APP_URL = "https://google.com";
+<script>
+    // URL de tu Google Apps Script vinculada correctamente
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxcBRnFlVsfkq1cjwtUZQGNpAhOb4sYbkda36_EhZXiRNpBkt-jEEFsa3WNBW4egazO/exec";
 
-        let reservas = [];
-        const form = document.getElementById('formReserva');
-        const listaReservas = document.getElementById('listaReservas');
-        const btnEnviar = document.getElementById('btnEnviar');
-
-        // Mapea la dirección local del navegador para el retorno automático post-guardado
-        const urlLimpia = window.location.href.split('?')[0];
-        document.getElementById('redirect_to').value = urlLimpia;
-
-        // Captura las respuestas de retorno enviadas por Google Sheets en la barra superior
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('status') === 'success') {
-            alert("✅ ¡Reserva guardada con éxito en Google Sheets!");
-            window.history.replaceState({}, document.title, urlLimpia);
-        } else if (urlParams.get('status') === 'conflict') {
-            alert("⚠️ Conflicto: Ese coche ya tiene dueño asignado para esa fecha y turno.");
-            window.history.replaceState({}, document.title, urlLimpia);
-        }
-
-        // LEER MEDIANTE SCRIPT INYECTADO (JSONP): Elimina el bloqueo CORS de raíz
-        function cargarReservas() {
-            const antiguoScript = document.getElementById('jsonpScript');
-            if (antiguoScript) antiguoScript.remove();
-
-            const script = document.createElement('script');
-            script.id = 'jsonpScript';
-            // Le indicamos a Google que devuelva los datos envolviéndolos en la función procesarReservas
-            script.src = `${WEB_APP_URL}?callback=procesarReservas&t=${new Date().getTime()}`;
-            document.body.appendChild(script);
-        }
-
-        // Esta función se ejecuta de inmediato cuando el script inyectado responde desde Google
-        window.procesarReservas = function(datos) {
-            reservas = datos;
-            actualizarAgenda();
-        };
-
-        function actualizarAgenda() {
-            listaReservas.innerHTML = '';
-            if (!Array.isArray(reservas) || reservas.length === 0) {
-                listaReservas.innerHTML = '<p class="no-data">No hay reservas activas en la nube.</p>';
+    // Función para obtener y mostrar reservas (GET)
+    async function cargarReservas() {
+        const lista = document.getElementById('listaReservas');
+        lista.innerHTML = "<p style='font-size:13px; color:#888;'>Cargando reservas...</p>";
+        
+        try {
+            const response = await fetch(WEB_APP_URL);
+            const reservas = await response.json();
+            lista.innerHTML = "";
+            
+            if(!reservas || reservas.length === 0) {
+                lista.innerHTML = "<p style='font-size:13px; color:#888;'>No hay reservas activas.</p>";
                 return;
             }
 
-            reservas.forEach((reserva) => {
-                let turnoLimpio = (reserva.turno || "").split(' (')[0];
-                const item = document.createElement('div');
-                item.className = "reserva-card";
-                item.innerHTML = `
-                    <div class="reserva-info">
-                        <h4>${reserva.vehiculo}</h4>
-                        <p><b>Por:</b> ${reserva.solicitante}</p>
-                        <div class="meta-date">📅 ${reserva.fecha} | 🕒 ${turnoLimpio}</div>
-                    </div>
+            reservas.forEach(res => {
+                const card = document.createElement('div');
+                card.className = 'reserva-card';
+                card.innerHTML = `
+                    <h3>${res.vehiculo}</h3>
+                    <p><strong>Por:</strong> ${res.solicitante}</p>
+                    <p><strong>Fecha:</strong> ${res.fecha} | <strong>Turno:</strong> ${res.turno}</p>
                 `;
-                listaReservas.appendChild(item);
+                lista.appendChild(card);
             });
+        } catch (error) {
+            console.error("Error al cargar:", error);
+            lista.innerHTML = "<p style='color:red; font-size:13px;'>Error al cargar las reservas desde la base de datos.</p>";
         }
+    }
 
+    // Función para enviar una nueva reserva en formato JSON (POST)
+    document.getElementById('formReserva').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const datosReserva = {
+            vehiculo: document.getElementById('vehiculo').value,
+            solicitante: document.getElementById('solicitante').value,
+            fecha: document.getElementById('fecha').value,
+            turno: document.getElementById('turno').value
+        };
+
+        try {
+            // Se usa el método tradicional con URLSearchParams para evitar bloqueos de CORS al redirigir en Apps Script
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosReserva)
+            });
+            
+            alert('¡Reserva enviada con éxito!');
+            document.getElementById('formReserva').reset();
+            
+            // Pausa de cortesía para dar tiempo a Google Sheets a procesar el registro antes de actualizar la lista
+            setTimeout(cargarReservas, 1500); 
+        } catch (error) {
+            console.error("Error al guardar:", error);
+            alert('Error al conectar con el servidor de reservas.');
+        }
+    });
+
+    // Carga inicial automatizada al abrir el sitio web
+    window.onload = cargarReservas;
+</script>
+
+</body>
+</html>
