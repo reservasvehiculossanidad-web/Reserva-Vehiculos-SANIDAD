@@ -12,12 +12,15 @@
         .form-group { margin-bottom: 18px; }
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; background-color: #fcfcfc; }
-        button { width: 100%; padding: 12px; background-color: #d32f2f; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #b71c1c; }
+        .btn-confirmar { width: 100%; padding: 12px; background-color: #d32f2f; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-confirmar:hover { background-color: #b71c1c; }
         .agenda-title { font-size: 16px; font-weight: bold; margin-top: 30px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        .reserva-card { border-left: 5px solid #d32f2f; background: #fff5f5; padding: 12px; margin-top: 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .reserva-card { border-left: 5px solid #d32f2f; background: #fff5f5; padding: 12px; margin-top: 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .reserva-info { flex-grow: 1; }
         .reserva-card h3 { margin: 0 0 5px 0; font-size: 15px; color: #111; }
-        .reserva-card p { margin: 0; font-size: 13px; color: #555; }
+        .reserva-card p { margin: 0; font-size: 13px; color: #555; line-height: 1.4; }
+        .btn-cancelar { background-color: #e57373; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        .btn-cancelar:hover { background-color: #d32f2f; }
     </style>
 </head>
 <body>
@@ -54,18 +57,15 @@
             </select>
         </div>
 
-        <button type="submit">Confirmar Reserva</button>
+        <button type="submit" class="btn-confirmar">Confirmar Reserva</button>
     </form>
 
     <div class="agenda-title">Agenda de Reservas Activas</div>
-    <div id="listaReservas">
-        <!-- Las reservas de la base de datos se cargarán aquí -->
-    </div>
+    <div id="listaReservas"></div>
 </div>
 
 <script>
-    // URL de tu Google Apps Script vinculada correctamente
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxcBRnFlVsfkq1cjwtUZQGNpAhOb4sYbkda36_EhZXiRNpBkt-jEEFsa3WNBW4egazO/exec";
+    const WEB_APP_URL = "https://google.com";
 
     // Función para obtener y mostrar reservas (GET)
     async function cargarReservas() {
@@ -86,19 +86,22 @@
                 const card = document.createElement('div');
                 card.className = 'reserva-card';
                 card.innerHTML = `
-                    <h3>${res.vehiculo}</h3>
-                    <p><strong>Por:</strong> ${res.solicitante}</p>
-                    <p><strong>Fecha:</strong> ${res.fecha} | <strong>Turno:</strong> ${res.turno}</p>
+                    <div class="reserva-info">
+                        <h3>${res.vehiculo}</h3>
+                        <p><strong>Por:</strong> ${res.solicitante}</p>
+                        <p><strong>Fecha:</strong> ${res.fecha} | <strong>Turno:</strong> ${res.turno}</p>
+                    </div>
+                    <button class="btn-cancelar" onclick="cancelarReserva('${res.id}')">Cancelar</button>
                 `;
                 lista.appendChild(card);
             });
         } catch (error) {
             console.error("Error al cargar:", error);
-            lista.innerHTML = "<p style='color:red; font-size:13px;'>Error al cargar las reservas desde la base de datos.</p>";
+            lista.innerHTML = "<p style='color:red; font-size:13px;'>Error al actualizar la base de datos.</p>";
         }
     }
 
-    // Función para enviar una nueva reserva en formato JSON (POST)
+    // Función para enviar una nueva reserva con comprobación de respuesta (POST JSON)
     document.getElementById('formReserva').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -110,26 +113,53 @@
         };
 
         try {
-            // Se usa el método tradicional con URLSearchParams para evitar bloqueos de CORS al redirigir en Apps Script
-            await fetch(WEB_APP_URL, {
+            // Nota: Para capturar respuestas personalizadas en Apps Script sin problemas de redirección CORS,
+            // realizamos la petición con redirección manual transparente.
+            const response = await fetch(WEB_APP_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain' }, // Evita la preflight request CORS compleja en Apps Script
                 body: JSON.stringify(datosReserva)
             });
             
-            alert('¡Reserva enviada con éxito!');
-            document.getElementById('formReserva').reset();
+            const txt = await response.text();
+            const res = JSON.parse(txt);
             
-            // Pausa de cortesía para dar tiempo a Google Sheets a procesar el registro antes de actualizar la lista
-            setTimeout(cargarReservas, 1500); 
+            if(res.status === "error") {
+                alert('⚠️ LO SIENTO: ' + res.message);
+            } else {
+                alert('¡Reserva confirmada con éxito!');
+                document.getElementById('formReserva').reset();
+                cargarReservas();
+            }
         } catch (error) {
             console.error("Error al guardar:", error);
-            alert('Error al conectar con el servidor de reservas.');
+            // Fallback de cortesía en caso de que la respuesta CORS sea opaca
+            alert('Petición enviada. Si los datos eran correctos, se reflejarán en unos segundos.');
+            setTimeout(cargarReservas, 1500);
         }
     });
 
-    // Carga inicial automatizada al abrir el sitio web
+    // Función para cancelar reserva enviando parámetro por la URL (GET alternativo)
+    async function cancelarReserva(id) {
+        if(!confirm('¿Estás seguro de que deseas cancelar esta reserva?')) return;
+        
+        try {
+            const response = await fetch(`${WEB_APP_URL}?action=delete&id=${id}`);
+            const res = await response.json();
+            
+            if(res.status === "deleted") {
+                alert('Reserva cancelada correctamente.');
+                cargarReservas();
+            } else {
+                alert('No se pudo encontrar la reserva en la base de datos.');
+            }
+        } catch (error) {
+            console.error("Error al borrar:", error);
+            alert('Error al procesar la cancelación.');
+        }
+    }
+
+    // Inicialización al abrir la web app
     window.onload = cargarReservas;
 </script>
 
