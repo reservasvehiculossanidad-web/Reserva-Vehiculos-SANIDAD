@@ -65,31 +65,56 @@
 </div>
 
 <script>
+    // URL de Apps Script e ID de tu Google Sheet vinculados de forma nativa
     const WEB_APP_URL = "https://google.com";
-    
-    // Proxy inverso para resolver el bloqueo CORS de Google en peticiones de lectura directa
-    const PROXY_URL = "https://corsproxy.io?" + encodeURIComponent(WEB_APP_URL);
+    const SPREADSHEET_ID = "17CwD4UvWDWaodVYYFRkFGGKAH0UxWx6i_kR-11ov_Ls"; 
+    const SHEET_DATA_URL = `https://google.com{SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
 
-    // Función para obtener y mostrar reservas (GET)
+    // Array global para evaluar solapamientos localmente en el cliente antes de enviar la petición
+    let reservasLocales = [];
+
+    // Función nativa para leer las celdas del Sheet sin que Chrome lance errores CORS
     async function cargarReservas() {
         const lista = document.getElementById('listaReservas');
         lista.innerHTML = "<p style='font-size:13px; color:#888;'>Cargando reservas...</p>";
         
         try {
-            // Pasamos la consulta a través del proxy para procesar los encabezados CORS correctamente
-            const response = await fetch(PROXY_URL);
-            const reservas = await response.json();
+            const response = await fetch(SHEET_DATA_URL);
+            const text = await response.text();
+            
+            // Limpieza del envoltorio de protección de la API de Google
+            const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+            const json = JSON.parse(jsonString);
+            
+            const rows = json.table.rows;
             lista.innerHTML = "";
             
-            if(!reservas || reservas.length === 0) {
+            if(!rows || rows.length === 0) {
+                lista.innerHTML = "<p style='font-size:13px; color:#888;'>No hay reservas activas.</p>";
+                reservasLocales = [];
+                return;
+            }
+
+            // Mapeo seguro convirtiendo las filas de Google Sheets a objetos JSON puros
+            reservasLocales = rows.map(r => {
+                return {
+                    id: r.c[0] ? r.c[0].v : '',
+                    vehiculo: r.c[1] ? r.c[1].v : '',
+                    solicitante: r.c[2] ? r.c[2].v : '',
+                    fecha: r.c[3] ? r.c[3].f || r.c[3].v : '',
+                    turno: r.c[4] ? r.c[4].v : ''
+                };
+            }).filter(res => res.id && res.id !== "id"); // Limpiar cabeceras de columnas
+
+            if(reservasLocales.length === 0) {
                 lista.innerHTML = "<p style='font-size:13px; color:#888;'>No hay reservas activas.</p>";
                 return;
             }
 
-            // Ordenar las reservas por fecha de forma ascendente
-            reservas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+            // Ordenación cronológica ascendente automática para la vista de la agenda
+            reservasLocales.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
-            reservas.forEach(res => {
+            reservasLocales.forEach(res => {
                 const card = document.createElement('div');
                 card.className = 'reserva-card';
                 card.innerHTML = `
@@ -103,24 +128,43 @@
                 lista.appendChild(card);
             });
         } catch (error) {
-            console.error("Error al cargar:", error);
+            console.error("Error de conexión:", error);
             lista.innerHTML = "<p style='color:red; font-size:13px;'>Error al conectar con la base de datos de Google Sheets.</p>";
         }
     }
 
-    // Función para enviar una nueva reserva (POST JSON)
+    // Interceptor del formulario con doble capa de validación contra duplicados
     document.getElementById('formReserva').addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const nuevaFecha = document.getElementById('fecha').value;
+        const nuevoVehiculo = document.getElementById('vehiculo').value;
+        const nuevoTurno = document.getElementById('turno').value;
+
+        // VALIDACIÓN LOCAL PREVIA: Evita peticiones innecesarias si ya existe coincidencia exacta
+        const existeDuplicado = reservasLocales.some(res => {
+            if (res.vehiculo === nuevoVehiculo && res.fecha === nuevaFecha) {
+                if (res.turno === "Día Completo" || nuevoTurno === "Día Completo" || res.turno === nuevoTurno) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        if (existeDuplicado) {
+            alert(`⚠️ ERROR DE DISPONIBILIDAD:\nEl vehículo seleccionado ya está reservado para esa fecha y turno.`);
+            return;
+        }
+        
         const datosReserva = {
-            vehiculo: document.getElementById('vehiculo').value,
+            vehiculo: nuevoVehiculo,
             solicitante: document.getElementById('solicitante').value,
-            fecha: document.getElementById('fecha').value,
-            turno: document.getElementById('turno').value
+            fecha: nuevaFecha,
+            turno: nuevoTurno
         };
 
         try {
-            // El envío usa modo 'no-cors' para asegurar que Google Sheets registre el JSON sin bloquearse
+            // Envío seguro y directo a la macro
             await fetch(WEB_APP_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -128,39 +172,32 @@
                 body: JSON.stringify(datosReserva)
             });
             
-            alert('Petición de reserva procesada. Comprobando disponibilidad...');
+            alert('¡Petición de reserva enviada correctamente!');
             document.getElementById('formReserva').reset();
             
-            // Pausa de sincronización para que impacte el registro en el documento de Google
-            setTimeout(cargarReservas, 2000);
+            // Refresco con retardo controlado para que Google procese e indexe la fila
+            setTimeout(cargarReservas, 2500);
         } catch (error) {
-            console.error("Error al guardar:", error);
-            alert('Error al enviar los datos del formulario.');
+            console.error("Error al registrar:", error);
+            alert('Error técnico al enviar los datos a Google.');
         }
     });
 
-    // Función para cancelar reserva
+    // Función de cancelación optimizada
     async function cancelarReserva(id) {
         if(!confirm('¿Estás seguro de que deseas cancelar esta reserva?')) return;
         
         try {
-            const deleteUrl = "https://corsproxy.io?" + encodeURIComponent(`${WEB_APP_URL}?action=delete&id=${id}`);
-            const response = await fetch(deleteUrl);
-            const res = await response.json();
-            
-            if(res.status === "deleted") {
-                alert('Reserva cancelada correctamente.');
-                cargarReservas();
-            } else {
-                alert('No se pudo encontrar la reserva.');
-            }
+            await fetch(`${WEB_APP_URL}?action=delete&id=${id}`, { mode: 'no-cors' });
+            alert('Petición de cancelación enviada.');
+            setTimeout(cargarReservas, 2000);
         } catch (error) {
             console.error("Error al borrar:", error);
-            alert('Error al procesar la cancelación.');
+            alert('Error al conectar con el servidor de cancelaciones.');
         }
     }
 
-    // Inicialización automática
+    // Inicialización de la aplicación web
     window.onload = cargarReservas;
 </script>
 
